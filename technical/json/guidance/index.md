@@ -1,6 +1,6 @@
 ---
 title: Non-Normative Guidance in Using NIEM with JSON
-<!-- layout: spec -->
+layout: specification
 ndr-href: https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/NIEM-NDR-3.0-2014-07-31.html
 ---
 
