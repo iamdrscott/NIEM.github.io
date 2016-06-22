@@ -39,9 +39,9 @@ an issue at
 [https://github.com/NIEM/NIEM.github.io/issues](https://github.com/NIEM/NIEM.github.io/issues)
 or sending email to <niem-comments@lists.gatech.edu>.
 
-<div class="body-start"/>
+<div id="body-start"></div>
 
-## Introduction {#introduction}
+## Introduction
 
 This document provides guidance from the [NIEM Technical Architecture
 Committee (NTAC)](https://www.niem.gov/meet-us/ntac) for using the
@@ -694,7 +694,7 @@ Describe NTAC's planned path for NIEM-conformant JSON.
 
 Describe approaches or tools for transforming.
 
-<div class="body-end"/>
+<div id="body-end"></div>
 
 ## References
 
