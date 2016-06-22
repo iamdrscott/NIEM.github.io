@@ -20,12 +20,15 @@ ndr-href: https://reference.niem.gov/niem/specification/naming-and-design-rules/
 ## Abstract
 {:.no_toc}
 
+{% capture abstract-text %}
 This document provides guidance from the [NIEM Technical Architecture
 Committee (NTAC)](https://www.niem.gov/meet-us/ntac) for using the
 National Information Exchange Model ([NIEM](http://niem.gov)) with
 JavaScript Object Notation (JSON).  NIEM provides a well-established
 standard for defining information exchanges. JSON is specified by
 [RFC4627](#bibrfc4627).
+{% endcapture %}
+{{ abstract-text }}
 
 ## Status
 {:.no_toc}
@@ -43,12 +46,7 @@ or sending email to <niem-comments@lists.gatech.edu>.
 
 ## Introduction
 
-This document provides guidance from the [NIEM Technical Architecture
-Committee (NTAC)](https://www.niem.gov/meet-us/ntac) for using the
-National Information Exchange Model ([NIEM](http://niem.gov)) with
-JavaScript Object Notation (JSON).  NIEM provides a well-established
-standard for defining information exchanges. JSON is specified by
-[RFC4627](#bibrfc4627).
+{{ abstract-text }}
 
 This document is provided as guidance, not as a normative specification. It
 discusses possible NIEM conformance rules for JSON data, but it does not
