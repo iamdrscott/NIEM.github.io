@@ -225,9 +225,10 @@ several ways; all of these methods are legitimate ways to access NIEM JSON-LD da
 
 ## JSON-LD representation of NIEM XML {#xml-to-json}
 
-This section presents some rules for converting the different constructs that may
-appear in a NIEM IEP into an equivlent JSON-LD construct.  The
-following XML document is the example IEP throughout the section.
+This section walks through the transformation of a NIEM XML instance document
+into corresponding JSON-LD data. Each section within highlights the
+transformation of a NIEM or XML concept into corresponding JSON-LD. The full
+source XML appears in [an appendix below](#full-example-xml). The resulting JSON-LD also appears in [an appendix below](#full-example-json).
 
 ### Namespaces &amp; JSON-LD context
 
