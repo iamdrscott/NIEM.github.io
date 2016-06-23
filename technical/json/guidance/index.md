@@ -90,7 +90,25 @@ aspects of this guidance are:
    relationships and structures described by NIEM-conformant XML schemas.
 1. The details of how JSON-LD represents NIEM XML data is based on the NIEM
    Naming and Design Rules's mapping between XML (and XML Schema) and RDF.
-   
+
+### The NIEM data model and RDF
+
+The [NIEM Naming and Design Rules (NDR)]({{ndr-href}}) is the main document that
+explains the meaning of NIEM&endash;conformant XML schemas and XML instance documents. The framework that the NIEM
+NDR relies on for meaning is the Resource Description Framework (RDF), which
+defines a data model that is the basis for Semantic Web technologies. NIEM
+defines the meaning of conformant XML schemas and XML instance documents in
+terms of RDF. This document leverages the NDR's RDF to map NIEM XML schemas and
+XML instance documents to JSON-LD.
+
+Although NIEM is, at its core, defined in terms of RDF, most users of NIEM do
+not have to understand much about RDF; NIEM is primarily discussed in terms of
+XML and XML schema: rules about elements, attributes, simple and complex types,
+etc. Similarly, users of this guidance document, and of NIEM's JSON-LD
+representation, will not need to understand much about RDF. The few RDF concepts
+this document explicitly requires are explained without requiring deep
+understanding of the underlying RDF concepts.
+
 ### Use of JSON-LD
 
 Guidance in this document is based on JavaScript Object Notation for Linking
@@ -103,15 +121,15 @@ One reason for choosing JSON-LD is its context mechanism, which allows names in
 JSON-LD to look like XML qualified names (QNames). This guidance maps element
 QNames to JSON-LD compacted names using JSON-LD contexts. The
 [NIEM NDR]({{page.ndr-href}}#section_5.6.1) defines a mapping from the qualified
-names in IEPs and IEPD schemas to IRIs.  For example, the qualified name
+names in IEPs and IEPD schemas to IRIs.  For example, the qualified name&hellip;
 
 > `nc:PersonName`
 
-with a declared namespace prefix 
+&hellip;with a declared namespace prefix&hellip;
 
 > `xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"`
 
-corresponds to the Linked LD resource URI
+&hellip;is defined by the [NIEM NDR Section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1) to correspond to the resource URI&hellip;
 
 > `http://release.niem.gov/niem/niem-core/3.0/#PersonName`
 
@@ -140,6 +158,20 @@ compaction yields:
   },
   "nc:quantityUnitText": "dozen"
 }
+```
+
+expansion yields:
+
+```javascript
+[
+  {
+    "http://release.niem.gov/niem/niem-core/3.0/#quantityUnitText": [
+      {
+        "@value": "dozen"
+      }
+    ]
+  }
+]
 ```
 
 JSON-LD objects contain `@context` objects mapping JSON object keys to
