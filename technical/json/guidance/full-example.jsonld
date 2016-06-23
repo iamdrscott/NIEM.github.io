@@ -1,0 +1,81 @@
+{
+  "@context": {
+    "exch": "http://example.com/CrashDriver/1.0/#",
+    "j": "http://release.niem.gov/niem/domains/jxdm/5.1/#",
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "structures": "http://release.niem.gov/niem/structures/3.0/#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  },
+  "exch:CrashDriverInfo": {
+    "nc:Person": {
+      "@id": "http://example.org/Person/P01",
+      "nc:PersonBirthDate": {
+        "nc:Date": {
+          "rdf:value": "2006-05-04"
+        }
+      },
+      "nc:PersonName": {
+        "nc:PersonGivenName": {
+          "nc:sequenceID": 1,
+          "rdf:value": "Peter"
+        },
+        "nc:PersonMiddleName": [
+          {
+            "nc:sequenceID": 2,
+            "rdf:value": "Death"
+          },
+          {
+            "nc:sequenceID": 3,
+            "rdf:value": "Bredon"
+          }
+        ],
+        "nc:PersonSurName": {
+          "rdf:value": "Wimsey"
+        }
+      },
+      "exch:PersonSuspectedSpaceAlienIndicator": {
+        "rdf:value": true
+      }
+    },
+    "j:CrashDriver": {
+      "nc:RoleOfPerson": "http://example.org/Person/P01",
+      "j:DriverLicense": {
+        "j:DriverLicenseCardIdentification": {
+          "nc:IdentificationID": {
+            "rdf:value": "A1234567"
+          }
+        },
+        "nc:ItemLengthMeasure": {
+          "nc:MeasureDecimalValue": {
+            "rdf:value": 9.7
+          }
+        },
+        "nc:LengthUnitCode": {
+          "rdf:value": "CMT"
+        }
+      }
+    },
+    "j:PersonChargeAssociation": {
+      "nc:Person": "http://example.org/Person/P01",
+      "j:Charge": "http://example.org/Charge/CH01",
+      "j:JuvenileAsAdultIndicator": {
+        "rdf:value": true
+      }
+    },
+    "j:Charge": {
+      "@id": "http://example.org/Charge/CH01",
+      "j:JusticeMetadata": {
+        "@id": "http://example.org/JusticeMetadata/MD01",
+        "j:CriminalInformationIndicator": {
+          "rdf:value": true
+        }
+      },
+      "j:ChargeDescriptionText": {
+        "rdf:value": "Wild Driving"
+      },
+      "j:ChargeFelonyIndicator": {
+        "rdf:value": false
+      }
+    }
+  }
+}
