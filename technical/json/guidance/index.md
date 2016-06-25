@@ -144,19 +144,10 @@ parse and generate.
 There are several reasons that JSON-LD is a good fit for NIEM. One reason for
 choosing JSON-LD is context mechanism, which allows names in JSON-LD to look
 like XML qualified names (QNames). As described [above](#niem-and-rdf), the NDR
-defines how to translate element QNames to JSON-LD IRIs. These IRIs can be represented in a short form using a JSON-LD context. For example, the XML qualified name&hellip;
+defines how to translate element QNames to JSON-LD IRIs. These IRIs can be
+represented in a short form using a JSON-LD context. 
 
-> `nc:PersonName`
-
-&hellip;with a declared XML namespace prefix&hellip;
-
-> `xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"`
-
-&hellip;corresponds to the resource IRI&hellip;
-
-> `http://release.niem.gov/niem/niem-core/3.0/#PersonName`
-
-Given the right context, this IRI can be shortened. Given the JSON-LD data&hellip;
+Take, for example, the following JSON data:
 
 ```javascript
 {
@@ -164,7 +155,8 @@ Given the right context, this IRI can be shortened. Given the JSON-LD data&helli
 }
 ```
 
-&hellip;and the JSON-LD context&hellip;
+With JSON-LD, the long IRI can be shortened. Applying the following JSON-LD
+context&hellip;
 
 ```javascript
 {
@@ -172,7 +164,7 @@ Given the right context, this IRI can be shortened. Given the JSON-LD data&helli
 }
 ```
 
-&hellip;a compact form of the same data can be represented as&hellip;
+&hellip;yields a compact form of the same data:
 
 ```javascript
 {
@@ -182,6 +174,10 @@ Given the right context, this IRI can be shortened. Given the JSON-LD data&helli
   "nc:quantityUnitText": "dozen"
 }
 ```
+
+A JSON-LD context can applied to JSON-LD several ways, including by serving it
+as part of an HTTP response, or by reference from within a JSON-LD data
+instance.
 
 Another reason to use JSON-LD to represent NIEM data is that JSON-LD explicitly
 supports a set of algorithms for manipulating JSON-LD data. The process of going
@@ -228,25 +224,68 @@ several ways; all of these methods are legitimate ways to access NIEM JSON-LD da
 This section walks through the transformation of a NIEM XML instance document
 into corresponding JSON-LD data. Each section within highlights the
 transformation of a NIEM or XML concept into corresponding JSON-LD. The full
-source XML appears in [an appendix below](#full-example-xml). The resulting JSON-LD also appears in [an appendix below](#full-example-json).
+source XML appears in [an appendix below](#full-example-xml). The resulting
+JSON-LD also appears in [an appendix below](#full-example-json).
 
-### Namespaces &amp; JSON-LD context
+This guidance describes teh translation of an IEP (information exchange package,
+an XML instance document) defined against an IEPD (information exchange package
+description). It walks through various aspects of the IEP and transforms the IEP
+to JSON-LD piece by piece.
 
-NIEM uses namespaces to organize its objects into domains. The namespaces are
-defined in the root element of a NIEM IEP. While NIEM element names tend to be
-unique across domains, this isn't guaranteed. To uniquely specify a NIEM
-element, the name must be combined with a namespace prefix.
+This section makes simplifying assumptions, which may not apply to every NIEM
+IEP. If your IEP is more complicated, then you may have to extend the
+guidelines to cover your data.
 
-JSON-LD provides a similar mechanism. JSON-LD uses International
-Resource Identifiers (IRIs) to uniquely identify objects. Prefixes for these
-IRIs are defined in the context and can then be used in object names. This
-functionality can be used to represent XML namespaces, including the concept of
-short-hand prefixes.
+### Namespaces and JSON-LD context
 
-The root element (or document element) of a NIEM IEP is converted to a
-JSON object with two pairs.  One key is the JSON-LD reserved term
-`@context`. The key for the other pair is the QName of the root
-element. So, for example, the JSON-LD for the `CrashDriverInfo` IEP is:
+NIEM uses XML namespaces to distinguish components with similar names, to
+identify the authorities responsible for managing a set of XML schema
+components, and to organize data defintions among NIEM Core, domains, IEPD
+extensions, etc. Every NIEM IEP has namespace declarations for its content. To
+uniquely specify a NIEM element, attribute, or schema component, its local name
+must be combined with the namespace associated with its namespace prefix.
+
+The context mechanism in JSON-LD can serve a purpose similar to XML
+namespaces. JSON-LD uses International Resource Identifiers (IRIs) as keys
+within JSON objects, and to uniquely identify objects. A JSON-LD context can
+define parts of IRIs, which can be used in short-form terms which expand into
+full IRIs. So, XML namespaces in the IEP are mapped to JSON-LD context entries,
+to support short-form terms.
+
+**ASSUMPTIONS**: All of the IEP's namespace declarations are at or above the
+IEP's root element (if there is an envelope around the IEP's root
+element). There is no content using the default (no namespace prefix) namespace.
+
+Convert XML namespaces in the IEP into `@context` entries.
+
+Take the sample IEP:
+
+```xml
+<exch:CrashDriverInfo 
+ xmlns:exch="http://example.com/CrashDriver/1.0/"
+ xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
+ xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
+ xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
+ xmlns:gml="http://www.opengis.net/gml/3.2"
+ xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <nc:Person structures:id="P01">
+  …
+```
+
+Convert each declared namespace prefix into an `@context` entry:
+
+* Each prefix is translated into a short name
+* The namespace name assigned to the prefix is converted into an IRI root, constructing IRIs conforming to the rules in
+[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1).
+
+The NDR states how IRIs are constructed from QNames. This leads to the definition of IRI roots as follows:
+
+* If namespace name ends with &ldquo;#&rdquo;, then the IRI root is the namespace name
+* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;)
+
+This means that, if an IR
+
 
 ```javascript
 {
@@ -275,6 +314,15 @@ component](https://reference.niem.gov/niem/specification/naming-and-design-rules
 For example, the JSON-LD term `exch:CrashDriverInfo` should expand to
 `http://example.com/CrashDriver/1.0/#CrashDriverInfo`, because that is the
 IRI for the `CrashDriverInfo` element declaration in the IEPD schema.
+
+### Document (root) element
+
+The root element (or document element) of a NIEM IEP is converted to a
+JSON object with two pairs.  One key is the JSON-LD reserved term
+`@context`. The key for the other pair is the QName of the root
+element. So, for example, the JSON-LD for the `CrashDriverInfo` IEP is:
+
+
 
 The pair in `@context` with the `rdf` key is there for a reason, which
 will be presented later.
@@ -720,17 +768,16 @@ Describe approaches or tools for transforming.
 
 ## References
 
-* <a name="ndr53">[NIEM Naming and Design Rules, Section 5](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5.3)</a>
-* <a name="bibiso111794">ISO 11179-4: ISO/IEC 11179-4 Information Technology — Metadata Registries (MDR) — Part 4: Formulation of Data Definitions Second Edition, 15 July 2004. Available from [http://standards.iso.org/ittf/PubliclyAvailableStandards/c035346_ISO_IEC_11179-4_2004(E).zip](http://standards.iso.org/ittf/PubliclyAvailableStandards/c035346_ISO_IEC_11179-4_2004(E).zip)</a>
-* <a name="bibiso111795">ISO 11179-5: ISO/IEC 11179-5:2005, Information technology — Metadata registries (MDR) — Part 5: Naming and identification principles. Available from [http://standards.iso.org/ittf/PubliclyAvailableStandards/c035347_ISO_IEC_11179-5_2005(E).zip](http://standards.iso.org/ittf/PubliclyAvailableStandards/c035347_ISO_IEC_11179-5_2005(E).zip)</a>
-* <a name="bibjsonld">JSON-LD: Manu Sporny, Gregg Kellogg, Markus Lanthaler, Editors. 16 January 2014. W3C Recommendation. &ldquo;[A JSON-based Serialization for Linked Data]( https://www.w3.org/TR/json-ld/).&rdquo; Available from [https://www.w3.org/TR/json-ld/](https://www.w3.org/TR/json-ld/)</a>
-* <a name="bibrfc4627">RFC4627: D. Crockford. &ldquo;[The application/json Media Type for JavaScript Object Notation (JSON) (RFC 4627)](http://www.ietf.org/rfc/rfc4627.txt).&rdquo; July 2006. RFC. Available from  [http://www.ietf.org/rfc/rfc4627.txt](http://www.ietf.org/rfc/rfc4627.txt)</a>
-* <a name="bibrdfconcepts">[RDF-Concepts](https://www.w3.org/TR/2014/PR-rdf11-concepts-20140109/)</a> 
+* <a name="bibiso111794"></a>ISO 11179-4: ISO/IEC 11179-4 Information Technology — Metadata Registries (MDR) — Part 4: Formulation of Data Definitions Second Edition, 15 July 2004. Available from [http://standards.iso.org/ittf/PubliclyAvailableStandards/c035346_ISO_IEC_11179-4_2004(E).zip](http://standards.iso.org/ittf/PubliclyAvailableStandards/c035346_ISO_IEC_11179-4_2004(E).zip)
+* <a name="bibiso111795"></a>ISO 11179-5: ISO/IEC 11179-5:2005, Information technology — Metadata registries (MDR) — Part 5: Naming and identification principles. Available from [http://standards.iso.org/ittf/PubliclyAvailableStandards/c035347_ISO_IEC_11179-5_2005(E).zip](http://standards.iso.org/ittf/PubliclyAvailableStandards/c035347_ISO_IEC_11179-5_2005(E).zip)
+* <a name="bibjsonld"></a>JSON-LD: Manu Sporny, Gregg Kellogg, Markus Lanthaler, Editors. 16 January 2014. W3C Recommendation. &ldquo;[A JSON-based Serialization for Linked Data]( https://www.w3.org/TR/json-ld/).&rdquo; Available from [https://www.w3.org/TR/json-ld/](https://www.w3.org/TR/json-ld/)
+* <a name="bibrfc4627"></a>RFC4627: D. Crockford. &ldquo;[The application/json Media Type for JavaScript Object Notation (JSON) (RFC 4627)](http://www.ietf.org/rfc/rfc4627.txt).&rdquo; July 2006. RFC. Available from  [http://www.ietf.org/rfc/rfc4627.txt](http://www.ietf.org/rfc/rfc4627.txt)
+* <a name="bibrdfconcepts"></a>[RDF-Concepts](https://www.w3.org/TR/2014/PR-rdf11-concepts-20140109/)</a> 
 Richard Cyganiak, David Wood, Markus Lanthaler, Editors. 09 January 2014. W3C Proposed Recommendation.
 RDF 1.1 Concepts and Abstract Syntax. Available from 
 [http://www.w3.org/TR/rdf11-concepts/](http://www.w3.org/TR/rdf11-concepts/)
-* <a name="bibschema">[Schema.Org](http://schema.org/)</a>
-* <a name="BlankNodeIDs">[Blank Node Identifiers](https://www.w3.org/TR/json-ld/#dfn-blank-node-identifier)</a>
+* <a name="bibschema"></a>[Schema.Org](http://schema.org/)
+* <a name="BlankNodeIDs"></a>[Blank Node Identifiers](https://www.w3.org/TR/json-ld/#dfn-blank-node-identifier)
 
 ## Full example: XML instance document {#full-example-xml}
 

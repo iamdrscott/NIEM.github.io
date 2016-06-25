@@ -1,0 +1,14 @@
+# put stuff here that is benched for maybe-later use within the document
+
+For example, the XML qualified name&hellip;
+
+> `nc:PersonName`
+
+&hellip;with a declared XML namespace prefix&hellip;
+
+> `xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"`
+
+&hellip;corresponds to the resource IRI&hellip;
+
+> `http://release.niem.gov/niem/niem-core/3.0/#PersonName`
+
