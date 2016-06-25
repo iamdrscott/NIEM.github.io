@@ -14,9 +14,9 @@ json-api-href: http://www.w3.org/TR/json-ld-api/
 ## Authors
 {:.no_toc}
 
-* Scott Renner <srenner@mitre.org>
+* Scott Renner <srenner@mitre.org>, @iamdrscott
 * Webb Roberts <webb.roberts@gtri.gatech.edu>, @webb
-* Leila Tite <Leila.Tite@co.hennepin.mn.us>
+* Leila Tite <Leila.Tite@co.hennepin.mn.us>, @leilatite
 
 ## Abstract
 {:.no_toc}
