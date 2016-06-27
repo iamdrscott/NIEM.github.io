@@ -359,11 +359,12 @@ IRI root. Within the [full example](#full-example), this yields:
 }
 ```
 
-### Most elements
+### Element content of an object or association type
 
-Just like the top element, we convert most elements to a key within a JSON-LD
-object. In the sample instance, `exch:CrashDriverInfo` has the following child
-elements:
+Since the top level element is a
+[NIEM object type]({{ndr-href}}#definition_object_type), we convert most
+elements within to a key for the top-level element's JSON-LD object. In the
+sample instance, `exch:CrashDriverInfo` has the following child elements:
 
 * `nc:Person`
 * `j:Crash`
@@ -377,32 +378,25 @@ described above:
 ```javascript
 ...
 "exch:CrashDriverInfo": {
-    "nc:Person": {
-        ...
-    },
-    "j:CrashDriver": {
-        ...
-    },
-    "j:PersonChargeAssociation": {
-        ...
-    },
-    "j:Charge": {
-        ...
-    }
+  "nc:Person": {
+      ...
+  },
+  "j:CrashDriver": {
+      ...
+  },
+  "j:PersonChargeAssociation": {
+      ...
+  },
+  "j:Charge": {
+      ...
+  }
 }
 ```
 
-### Element with Complex Content
+This is the most common case; this is how object types and association type are
+translated to JSON-LD.
 
-Consider the `j:CrashDriver` element in our example IEP.  Its JSON-LD
-representation is
-
-```javascript
-  "j:CrashDriver" : {
-    { "nc:RoleOfPerson" : <!-- RoleOfPerson element content --> },
-    { "j:DriverLicense" : <!-- DriverLicense element content --> }
-  }
-```
+...
 
 The content of an element with complex content is converted to a JSON
 object with one pair for the name of each attribute and one pair for
