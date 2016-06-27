@@ -262,29 +262,44 @@ Take the sample IEP:
 
 ```xml
 <exch:CrashDriverInfo 
- xmlns:exch="http://example.com/CrashDriver/1.0/"
- xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
- xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
- xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
- xmlns:gml="http://www.opengis.net/gml/3.2"
- xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <nc:Person structures:id="P01">
+    xmlns:exch="http://example.com/CrashDriver/1.0/"
+    xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
+    xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
+    xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <nc:Person structures:id="P01">
   …
 ```
 
 Convert each declared namespace prefix into an `@context` entry:
 
-* Each prefix is translated into a short name
-* The namespace name assigned to the prefix is converted into an IRI root, constructing IRIs conforming to the rules in
-[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1).
+* The namespace prefix becomes a short term.
+* The namespace name assigned to the prefix is converted into an IRI root.
 
-The NDR states how IRIs are constructed from QNames. This leads to the definition of IRI roots as follows:
+The rules for constructing IRIs from QNames are provided by
+[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1). This
+leads to the definition of IRI roots as follows:
 
-* If namespace name ends with &ldquo;#&rdquo;, then the IRI root is the namespace name
-* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;)
+* If the namespace name ends with &ldquo;#&rdquo;, then the IRI root is the
+  namespace name.
+* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;).
 
-This means that, if an IR
+For the QName `nc:Person` this yields the IRI `http://release.niem.gov/niem/niem-core/3.0/#Person`. 
+
+In addtion, we apply the following guidelines:
+
+* Omit the `xsi` namespace, `http://www.w3.org/2001/XMLSchema-instance`, which
+  is reserved for XML Schema-specific concepts, and is not carried over into
+  JSON-LD.
+* Omit any namespace prefixes used *only* in the content of external adapter elements.
+   * Omit namespace `gml`
+* Include a declaration of `rdf` to
+  `http://www.w3.org/1999/02/22-rdf-syntax-ns#`. This is used for `rdf:value`
+  and `rdf:XMLLiteral`.
+
+This yields the following `@context` entry:
 
 ```javascript
 {
@@ -299,28 +314,12 @@ This means that, if an IR
 }
 ```
 
-The `@context` value must have a pair for every namespace declaration
-that is in scope and is referenced within the root element. Notice how
-there is a `#` character appended to the URIs from the namespace
-declarations. This is needed to make the [JSON-LD expanded term
-definition](https://www.w3.org/TR/json-ld/#the-context) align with the
-[resource IRI for the schema
-component](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5.6.1).
-For example, the JSON-LD term `exch:CrashDriverInfo` should expand to
-`http://example.com/CrashDriver/1.0/#CrashDriverInfo`, because that is the
-IRI for the `CrashDriverInfo` element declaration in the IEPD schema.
-
 ### Document (root) element
 
 The root element (or document element) of a NIEM IEP is converted to a
 JSON object with two pairs.  One key is the JSON-LD reserved term
 `@context`. The key for the other pair is the QName of the root
 element. So, for example, the JSON-LD for the `CrashDriverInfo` IEP is:
-
-
-
-The pair in `@context` with the `rdf` key is there for a reason, which
-will be presented later.
 
 Apart from the `@context` pair, the JSON-LD representation of the root
 element is the same as the representation of any element with complex
