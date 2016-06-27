@@ -1,6 +1,8 @@
 
+GETTING STARTED
+
 Directions to get the repository up and running. This assumes the repo is
-checked out as $root.
+checked out as directory $root.
 
 1. Install the packages that the NIEM.GitHub.io website requires, which are
    installed as submodules.
@@ -19,4 +21,15 @@ checked out as $root.
    $ jekyll serve
 
 4. Point your browser to http://127.0.0.1:4000/technical/json/guidance/
+
+DOCUMENT STYLE GUIDE
+
+The ellipsis character (&hellip;) looks great in justified text, but terrible in
+monospace text. Type ellipsis as:
+
+  * Within justified text, use &hellip;.
+  * Within monspace text, use three periods (...).
+
+
+
 
