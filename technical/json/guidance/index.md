@@ -95,7 +95,7 @@ aspects of this guidance are:
 ### The NIEM data model and RDF {#niem-and-rdf}
 
 The [NIEM Naming and Design Rules (NDR)]({{page.ndr-href}}) is the main document that
-explains the meaning of NIEM&endash;conformant XML schemas and XML instance
+explains the meaning of NIEM&ndash;conformant XML schemas and XML instance
 documents. The framework that the NIEM NDR relies on for meaning is the Resource
 Description Framework (RDF), which defines a data model that is the basis for
 Semantic Web technologies. NIEM defines the meaning of conformant XML schemas
@@ -286,21 +286,16 @@ The NDR states how IRIs are constructed from QNames. This leads to the definitio
 
 This means that, if an IR
 
-
 ```javascript
 {
-    "@context" : {
-        "exch" : "http://example.com/CrashDriver/1.0/#",
-        "j" : "http://release.niem.gov/niem/domains/jxdm/5.1/#",
-        "nc" : "http://release.niem.gov/niem/niem-core/3.0/#",
-        "geo" : "http://release.niem.gov/niem/adapters/geospatial/3.0/",
-        "gml" : "http://www.opengis.net/gml/3.2",
-        "structures" : "http://release.niem.gov/niem/structures/3.0/#",
-        "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    },
-    "exch:CrashDriverInfo" : {
-        <!-- remainder of JSON-LD for the CrashDriverInfoElement goes here -->
-    }
+  "@context": {
+    "exch": "http://example.com/CrashDriver/1.0/#",
+    "j": "http://release.niem.gov/niem/domains/jxdm/5.1/#",
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "structures": "http://release.niem.gov/niem/structures/3.0/#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  },
+  …
 }
 ```
 
@@ -702,16 +697,6 @@ something like example from [stack overflow](http://stackoverflow.com/questions/
 
 > Do we want to specify some other kind of example? It sounds like GML could be problematic.
 > The GML people have geo-json.  &mdash;@leilatite
-
-### Completed json-ld example from NIEM iep
-
-> This is still incomplete.  &mdash;@leilatite
->
-> And I changed the IEP, but haven't yet revised the JSON-LD &mdash;@iamdrscott
-
-```json
-{% include_relative sample-iepd/iep-samples/iep3.jsonld %}
-```
 
 ## Implementing Translators
 
