@@ -236,6 +236,22 @@ This section makes simplifying assumptions, which may not apply to every NIEM
 IEP. If your IEP is more complicated, then you may have to extend the
 guidelines to cover your data.
 
+### IEP XML instance document
+
+The IEP represents an object, evident in an instance by an outside set of
+curly braces. The object for the root element and `@context` go within that object:
+
+```javascript
+{
+    @context {
+        …
+    },
+   …
+}
+```
+
+Rules for what goes in this object follow below.
+
 ### Namespaces and JSON-LD context
 
 NIEM uses XML namespaces to distinguish components with similar names, to
@@ -316,8 +332,11 @@ This yields the following `@context` entry:
 
 ### Document (root) element
 
+
 The root element (or document element) of a NIEM IEP is converted to a
-JSON object with two pairs.  One key is the JSON-LD reserved term
+JSON object. The
+
+with two pairs.  One key is the JSON-LD reserved term
 `@context`. The key for the other pair is the QName of the root
 element. So, for example, the JSON-LD for the `CrashDriverInfo` IEP is:
 
