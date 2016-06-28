@@ -127,10 +127,11 @@ basis for much of what appears in this document. For example:
   basis for how a NIEM-conformant XML element is translated into corresponding
   JSON-LD.
 
-These, and other sections of the NDR are the basis of the translation from NIEM
-XML to JSON-LD. A goal of this document is to explain the translations from NIEM to
-JSON-LD sufficiently, so that the reader does not need to understand the NDR's
-mappings to RDF, nor the JSON-LD's RDF basis.
+These, and other sections of the NDR are the basis of the translation
+from NIEM XML to JSON-LD. A goal of this document is to explain the
+translations from NIEM to JSON-LD sufficiently, so that the reader
+does not need to understand the NDR's mappings to RDF, nor the
+JSON-LD's RDF basis.
 
 ### Use of JSON-LD
 
@@ -743,7 +744,7 @@ element is converted to
 ```json
 "geo:LocationGeospatialPoint": {
   "gml:Point": {
-    "@id": "_:PT01",
+    "@id": "PT01",
     "srsName": "urn:ogc:def:crs:EPSG::4326",
     "gml:pos": {
       "rdf:value": "51.835 -0.417"
@@ -772,7 +773,7 @@ element. The resulting JSON-LD would be
     "srsName": "http://www.opengis.net/gml/3.2#srsName"
   },
   "gml:Point": {
-    "@id": "_:PT01",
+    "@id": "PT01",
     "srsName": "urn:ogc:def:crs:EPSG::4326",
     "gml:pos": {
       "rdf:value": "51.835 -0.417"
