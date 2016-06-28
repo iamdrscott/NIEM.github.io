@@ -134,13 +134,17 @@ mappings to RDF, nor the JSON-LD's RDF basis.
 
 ### Use of JSON-LD
 
-This document describes the translation of NIEM-conformant XML schemas and XML
+This document describes the translation of NIEM-conformant XML
 instance documents into JSON, using JSON-LD as the target JSON
 representation. JSON-LD (JavaScript Object Notation for Linking Data) is a
 language-independent data format for representing Linked Data, expressed as
 JSON. JSON-LD provides a lightweight mechanism that allows data to be linked
 across websites. The syntax is easy for humans to read and easy for machines to
 parse and generate.
+
+> We don't actually say anything about translating XML schema
+> documents into JSON, and I don't think we are going to say anything
+> about that, so I changed that. &mdash;@iamdrscott
 
 There are several reasons that JSON-LD is a good fit for NIEM. One reason for
 choosing JSON-LD is context mechanism, which allows names in JSON-LD to look
@@ -208,18 +212,26 @@ Note that there are more features here than were in the initial data. Expanded
 form makes explicit what is implicit in JSON-LD's short form. For example, in
 short form, a key in an object may have a single value or may an array of
 values. In expanded form there will always be an array of values, even if the
-array contains only a single value. 
+array contains only a single value.
 
-Using JSON-LD as the target for NIEM data allows developers to use the data
-several ways; all of these methods are legitimate ways to access NIEM JSON-LD data:
+Finally, [JSON-LD is a concrete RDF
+syntax](https://www.w3.org/TR/json-ld/#relationship-to-rdf), like
+RDF/XML or Turtle. This means that NIEM JSON-LD data may be processed
+using RDF techniques, such as SPARQL queries.
+
+All three of these methods are legitimate ways to access NIEM JSON-LD data:
 
 1. A developer can work with the data as if it is plain JSON, without worrying
    about details of JSON-LD.
 1. A developer can use JSON-LD tools to transform the data prior to processing,
    including using compaction against a known context, expansion, flattening, or framing.
-1. A developer can convert JSON-LD to RDF and use RDF techniques, such as SPARQL
-   queries.
+1. A developer can process the data as RDF, possibly first converting it to
+   RDF/XML or Turtle syntax.
 
+The guidance in the next major section is intended to produce a
+JSON-LD serialization that is convienent for all three of these
+consumer use cases.
+   
 ## JSON-LD representation of NIEM XML {#xml-to-json}
 
 This section walks through the transformation of a NIEM XML instance document
@@ -233,6 +245,8 @@ an XML instance document) defined against an IEPD (information exchange package
 description). It walks through various aspects of the IEP and transforms the IEP
 to JSON-LD piece by piece.
 
+> Those two paragraphs could be usefully combined &mdash;@iamdrscott
+
 This section makes simplifying assumptions, which may not apply to every NIEM
 IEP. If your IEP is more complicated, then you may have to extend the
 guidelines to cover your data.
@@ -243,8 +257,9 @@ appears in place of the omitted text.
 
 ### IEP XML instance document
 
-The IEP represents an object, evident in an instance by an outside set of
-curly braces. The object for the root element and `@context` go within that object:
+The IEP as a whole is represented by a JSON object, evident in an
+instance by an outside set of curly braces. The sub-objects for the
+root element and `@context` go within that object:
 
 ```javascript
 {
@@ -277,9 +292,7 @@ to support short-form terms.
 IEP's root element (if there is an envelope around the IEP's root
 element). There is no content using the default (no namespace prefix) namespace.
 
-Convert XML namespaces in the IEP into `@context` entries.
-
-Take the sample IEP:
+These are the namespace declarations in the sample IEP:
 
 ```xml
 <exch:CrashDriverInfo 
@@ -295,7 +308,7 @@ Take the sample IEP:
 </exch:CrashDriverInfo>
 ```
 
-Convert each declared namespace prefix into an `@context` entry:
+Each declared namespace prefix is converted into an `@context` entry:
 
 * The namespace prefix becomes a short term.
 * The namespace name assigned to the prefix is converted into an IRI root.
@@ -315,12 +328,14 @@ In addtion, we apply the following guidelines:
 * Omit the `xsi` namespace, `http://www.w3.org/2001/XMLSchema-instance`, which
   is reserved for XML Schema-specific concepts, and is not carried over into
   JSON-LD.
-* Omit any namespace prefixes used *only* in the content of external adapter elements.
-   * Omit namespace `gml`
 * Include a declaration of `rdf` to
   `http://www.w3.org/1999/02/22-rdf-syntax-ns#`. This is used for `rdf:value`
   and `rdf:XMLLiteral`.
 
+> If we decide to toss the adapter section, then we can put back in
+> the guidance to omit namespace prefixes. Otherwise I think we need
+> them. Also, why are we keeping "structures"? &mdash;@iamdrscott
+  
 This yields the following `@context` entry:
 
 ```javascript
@@ -335,7 +350,7 @@ This yields the following `@context` entry:
         "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     },
     "exch:CrashDriverInfo" : {
-        <!-- remainder of JSON-LD for the CrashDriverInfoElement goes here -->
+        ...
     }
 }
 ```
@@ -362,6 +377,9 @@ IRI root. Within the [full example](#full-example), this yields:
   }
 }
 ```
+
+> Seems to me we need only one of sections 2.1 and 2.3.  I'd keep
+> 2.3.  &mdash;@iamdrscott
 
 ### Element content of an object or association type
 
@@ -453,12 +471,12 @@ two `Parent` elements:
 |</Parent>         |    </Parent>         |
 ```
 
-Therefore it is up to the developer to ensure that these two elements have the
-same meaning in the IEP.  If the meaning depends on the difference in
-element ordering, then this guidance does not apply, and the developer
-is on his own.  However, if the meaning does depend on this
-difference, then the IEPD design is bad, conflicting 
-with the [NIEM Conceptual
+Therefore it is up to the developer to ensure that these two elements
+have the same meaning in the IEP.  If the meaning depends on the
+difference in element ordering, then this guidance does not apply, and
+the developer is on his own.  However, if the meaning does depend on
+this difference, then the IEPD design is bad; it conflicts with the
+[NIEM Conceptual
 Model](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5).
 
 ### Element with Simple Content and Attributes
