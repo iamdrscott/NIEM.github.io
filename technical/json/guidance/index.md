@@ -777,9 +777,29 @@ using XSLT3's JSON capability.
 
 ### Expressing types
 
-> How do we put type info in the LD? &mdash;@webb
+The [@type]({{page.json-ld-href}}#typed-values) keyword is used to associate a type with a node. 
+ The concept of a node type and a value type are different. A _node type_ specifies the type of 
+ thing that is being described, like a Person, Location, or Event. A _value type_ specifies the 
+ data type of a particular value, such as an integer, a floating point number, or a date. 
+ Using [@type]({{page.json-ld-href}}#typed-values) keywords is optional. In general, the NIEM IEPD uses XML Schema to define node types 
+ or to constrain value types so it would not be necessary for the JSON-LD to repeat all of that.
 
-The @type keyword is used to associate a type with a node. The concept of a node type and a value type are different. A _node type_ specifies the type of thing that is being described, like a Person, Location, or Event. A _value type_ specifies the data type of a particular value, such as an integer, a floating point number, or a date. Using @type keywords is optional. In general, the NIEM IEPD uses XML Schema define node types or to constrain value types so it would not be necessary for the JSON-LD to repeat all of that.
+If you need to specify type information for handling the iep data correctly, you can add it where needed. 
+This example specifies that the node type of Person in the iep is a NIEM PersonType and the 
+value type of their PersonBirthDate is a NIEM Date type.
+
+```json
+"nc:Person": {
+      "@id": "P01",
+      "@type" : "http://release.niem.gov/niem/niem-core/3.0/PersonType",
+      "nc:PersonBirthDate": {
+        "nc:Date": {
+          "rdf:value": "2006-05-04",
+          "@type" : "http://release.niem.gov/niem/niem-core/3.0/Date"
+        }
+      }
+    }
+```      
 
 ### External XML content
 
