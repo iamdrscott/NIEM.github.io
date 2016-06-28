@@ -248,7 +248,7 @@ curly braces. The object for the root element and `@context` go within that obje
 
 ```javascript
 {
-    @context {
+    "@context" : {
         ...
     },
    ...
