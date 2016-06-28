@@ -569,9 +569,8 @@ representation for `<nc:Person structures:id="P01">` is
   }
 ```
 
-You can leave off the "http://example.org/Person/" part of the node identifier, 
-and then the json-ld processor will generate a relative IRI that is only valid for
-that instance of the document. Use a prefix that is part of a domain that
+The json-ld processor generates a relative IRI that is only valid for
+that instance of the document. You can also use a prefix that is part of a domain that
 you control, even if the resource is not available publicly on the web.
 
 ### References and IDREF attributes

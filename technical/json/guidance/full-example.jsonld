@@ -43,7 +43,7 @@
       "nc:IncidentLocation": {
         "geo:LocationGeospatialPoint": {
           "gml:Point": {
-            "@id": "_:PT01",
+            "@id": "PT01",
             "srsName": "urn:ogc:def:crs:EPSG::4326",
             "gml:pos": {
               "rdf:value": "51.835 -0.417"
@@ -54,7 +54,7 @@
       "j:CrashVehicle": {
         "j:CrashDriver": {
           "nc:RoleOfPerson": {
-            "@id": "http://example.org/Person/P01"
+            "@id": "P01"
           },
           "j:DriverLicense": {
             "j:DriverLicenseCardIdentification": {
@@ -76,10 +76,10 @@
     },
     "j:PersonChargeAssociation": {
       "nc:Person": {
-        "@id": "http://example.org/Person/P01"
+        "@id": "P01"
       },
       "j:Charge": {
-        "@id": "http://example.org/Charge/CH01"
+        "@id": "CH01"
       },
       "j:JuvenileAsAdultIndicator": {
         "rdf:value": true
@@ -99,7 +99,7 @@
       "j:ChargeFelonyIndicator": {
         "rdf:value": false
       }
-    },
+    }
   }
 }
 
