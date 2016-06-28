@@ -816,8 +816,14 @@ value type of their PersonBirthDate is a NIEM Date type.
 > it's been encoded the way you expected. &mdash;@webb
 
 ### Linking contexts via HTTP headers
+If you have existing JSON data that you want to expose as JSON-LD, you can
+do that by supplying a separate JSON-LD context for it. This provides an
+upgrade path for developers who need to be able to continue to support regular JSON.
+You do this by adding a HTTP Link Header as specified by [RFC5988](#bibrfc5988) 
+using the **http://www.w3.org/ns/json-ld#context** link relation.  
 
-References [JSON-LD Specification Section 6.8, &ldquo;Interpresting JSON as JSON-LD&rdquo;](http://www.w3.org/TR/json-ld/#interpreting-json-as-json-ld).
+See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
+of how to implement this.
 
 ## Roadmap for future work
 
@@ -841,6 +847,7 @@ Describe approaches or tools for transforming.
 Richard Cyganiak, David Wood, Markus Lanthaler, Editors. 09 January 2014. W3C Proposed Recommendation.
 RDF 1.1 Concepts and Abstract Syntax. Available from 
 [http://www.w3.org/TR/rdf11-concepts/](http://www.w3.org/TR/rdf11-concepts/)
+* <a name="bibrfc5988"></a>RFC5988: M. Nottingham. [Web Linking](http://www.ietf.org/rfc/rfc5988.txt). October 2010. Internet RFC 5988. Available from: [http://www.ietf.org/rfc/rfc5988.txt](http://www.ietf.org/rfc/rfc5988.txt)
 * <a name="bibschema"></a>[Schema.Org](http://schema.org/)
 * <a name="BlankNodeIDs"></a>[Blank Node Identifiers](https://www.w3.org/TR/json-ld/#dfn-blank-node-identifier)
 
