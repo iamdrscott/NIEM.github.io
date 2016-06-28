@@ -2,7 +2,8 @@
 title: Non-Normative Guidance in Using NIEM with JSON
 layout: specification
 ndr-href: https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/NIEM-NDR-3.0-2014-07-31.html
-json-api-href: http://www.w3.org/TR/json-ld-api/
+json-ld-api-href: http://www.w3.org/TR/json-ld-api/
+json-ld-href: http://www.w3.org/TR/json-ld/
 ---
 
 ## Contents
@@ -16,7 +17,7 @@ json-api-href: http://www.w3.org/TR/json-ld-api/
 
 * Scott Renner <sar@mitre.org>, @iamdrscott
 * Webb Roberts <webb.roberts@gtri.gatech.edu>, @webb
-* Leila Tite <Leila.Tite@co.hennepin.mn.us>, @leilatite
+* Leila Tite <leila.tite@hennepin.us>, @leilatite
 
 ## Abstract
 {:.no_toc}
@@ -183,12 +184,12 @@ Another reason to use JSON-LD to represent NIEM data is that JSON-LD explicitly
 supports a set of algorithms for manipulating JSON-LD data. The process of going
 from a long form of JSON-LD to a short form is the compaction algorithm,
 described by
-[JSON-LD 1.0 Processing Algorithms and API, Section 2.2, &ldquo;Compaction&rdquo;]({{page.json-api-href}}#compaction).
+[JSON-LD 1.0 Processing Algorithms and API, Section 2.2, &ldquo;Compaction&rdquo;]({{page.json-ld-api-href}}#compaction).
 
 Similarly, the JSON-LD specifications define a process of expanding JSON-LD into
 a canonical long-form, which inlines context information, and expands IRIs into
 their long forms. This is described by
-[JSON-LD 1.0 Processing Algorithms and API, Section 2.1, &ldquo;Expansion&rdquo;]({{json-api-href}}#expansion). The
+[JSON-LD 1.0 Processing Algorithms and API, Section 2.1, &ldquo;Expansion&rdquo;]({{page.json-ld-api-href}}#expansion). The
 expanded form of the above data follows:
 
 ```javascript
@@ -236,6 +237,26 @@ This section makes simplifying assumptions, which may not apply to every NIEM
 IEP. If your IEP is more complicated, then you may have to extend the
 guidelines to cover your data.
 
+Throughout these examples, at each stage, content is omitted or held back for
+later sections. When content is left out, an ellipsis (&ldquo;&hellip;&rdquo;)
+appears in place of the omitted text.
+
+### IEP XML instance document
+
+The IEP represents an object, evident in an instance by an outside set of
+curly braces. The object for the root element and `@context` go within that object:
+
+```javascript
+{
+    "@context" : {
+        ...
+    },
+   ...
+}
+```
+
+Rules for what goes in this object follow below.
+
 ### Namespaces and JSON-LD context
 
 NIEM uses XML namespaces to distinguish components with similar names, to
@@ -262,30 +283,45 @@ Take the sample IEP:
 
 ```xml
 <exch:CrashDriverInfo 
- xmlns:exch="http://example.com/CrashDriver/1.0/"
- xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
- xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
- xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
- xmlns:gml="http://www.opengis.net/gml/3.2"
- xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <nc:Person structures:id="P01">
-  …
+    xmlns:exch="http://example.com/CrashDriver/1.0/"
+    xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
+    xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
+    xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <nc:Person structures:id="P01">
+  ...
+</exch:CrashDriverInfo>
 ```
 
 Convert each declared namespace prefix into an `@context` entry:
 
-* Each prefix is translated into a short name
-* The namespace name assigned to the prefix is converted into an IRI root, constructing IRIs conforming to the rules in
-[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1).
+* The namespace prefix becomes a short term.
+* The namespace name assigned to the prefix is converted into an IRI root.
 
-The NDR states how IRIs are constructed from QNames. This leads to the definition of IRI roots as follows:
+The rules for constructing IRIs from QNames are provided by
+[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1). This
+leads to the definition of IRI roots as follows:
 
-* If namespace name ends with &ldquo;#&rdquo;, then the IRI root is the namespace name
-* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;)
+* If the namespace name ends with &ldquo;#&rdquo;, then the IRI root is the
+  namespace name.
+* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;).
 
-This means that, if an IR
+For the QName `nc:Person` this yields the IRI `http://release.niem.gov/niem/niem-core/3.0/#Person`. 
 
+In addtion, we apply the following guidelines:
+
+* Omit the `xsi` namespace, `http://www.w3.org/2001/XMLSchema-instance`, which
+  is reserved for XML Schema-specific concepts, and is not carried over into
+  JSON-LD.
+* Omit any namespace prefixes used *only* in the content of external adapter elements.
+   * Omit namespace `gml`
+* Include a declaration of `rdf` to
+  `http://www.w3.org/1999/02/22-rdf-syntax-ns#`. This is used for `rdf:value`
+  and `rdf:XMLLiteral`.
+
+This yields the following `@context` entry:
 
 ```javascript
 {
@@ -304,44 +340,67 @@ This means that, if an IR
 }
 ```
 
-The `@context` value must have a pair for every namespace declaration
-that is in scope and is referenced within the root element. Notice how
-there is a `#` character appended to the URIs from the namespace
-declarations. This is needed to make the [JSON-LD expanded term
-definition](https://www.w3.org/TR/json-ld/#the-context) align with the
-[resource IRI for the schema
-component](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5.6.1).
-For example, the JSON-LD term `exch:CrashDriverInfo` should expand to
-`http://example.com/CrashDriver/1.0/#CrashDriverInfo`, because that is the
-IRI for the `CrashDriverInfo` element declaration in the IEPD schema.
+### Document element (A.K.A. root element)
 
-### Document (root) element
+Each element within the IEP is converted to a key in a
+[JSON-LD node object]({{page.json-ld-href}}#node-objects). 
 
-The root element (or document element) of a NIEM IEP is converted to a
-JSON object with two pairs.  One key is the JSON-LD reserved term
-`@context`. The key for the other pair is the QName of the root
-element. So, for example, the JSON-LD for the `CrashDriverInfo` IEP is:
-
-
-
-The pair in `@context` with the `rdf` key is there for a reason, which
-will be presented later.
-
-Apart from the `@context` pair, the JSON-LD representation of the root
-element is the same as the representation of any element with complex
-content.
-
-### Element with Complex Content
-
-Consider the `j:CrashDriver` element in our example IEP.  Its JSON-LD
-representation is
+The root element (or document element) of a NIEM IEP is also converted to a node
+object. It is given the JSON key corresponding to the QName (XML qualified name)
+of the element. This may be expanded into an IRI by a JSON-LD processor, but
+this guidance recommends using the QName, supported by a context entry for the
+IRI root. Within the [full example](#full-example), this yields:
 
 ```javascript
-  "j:CrashDriver" : {
-    { "nc:RoleOfPerson" : <!-- RoleOfPerson element content --> },
-    { "j:DriverLicense" : <!-- DriverLicense element content --> }
+{
+  "@context": {
+    "exch": "http://example.com/CrashDriver/1.0/#",
+    ...
+  },
+  "exch:CrashDriverInfo": {
+    ...
   }
+}
 ```
+
+### Element content of an object or association type
+
+Since the top level element is a
+[NIEM object type]({{ndr-href}}#definition_object_type), we convert most
+elements within to a key for the top-level element's JSON-LD object. In the
+sample instance, `exch:CrashDriverInfo` has the following child elements:
+
+* `nc:Person`
+* `j:Crash`
+* `j:PersonChargeAssociation`
+* `j:Charge`
+* `j:JusticeMetadata`
+
+These are each converted into keys within the `exch:CrashDriverInfo` object
+described above:
+
+```javascript
+...
+"exch:CrashDriverInfo": {
+  "nc:Person": {
+      ...
+  },
+  "j:CrashDriver": {
+      ...
+  },
+  "j:PersonChargeAssociation": {
+      ...
+  },
+  "j:Charge": {
+      ...
+  }
+}
+```
+
+This is the most common case; this is how object types and association type are
+translated to JSON-LD.
+
+...
 
 The content of an element with complex content is converted to a JSON
 object with one pair for the name of each attribute and one pair for
@@ -381,44 +440,7 @@ The schema is consulted to determine whether an element is
 *repeatable*, and not the the XML to see if the element is actually
 *repeated*. If a repeatable element appears at all, it gets an
 array. This consistency makes life easier for developers who are
-writing code to access the data as plain JSON. For example, in Perl,
-given a reference to the JSON object for `nc:Person`, the code to
-access the contents of the first `PersonMiddleName` element would be
-
-```perl
-$r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
-```
-
-For example, in Javascript, if we had a reference to
-the JSON object for `nc:Person`, we would access the contents of the
-first `PersonMiddleName` element with
-
-```javascript
-repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]; 
-```
-
-If the JSON serialization used an array only for elements that are actually *repeated*,
-then it would be necessary to test whether the array is there, with Perl code like:
-
-```perl
-ref($r->{"nc:PersonName"}->{"nc:PersonMiddleName"}) eq 'HASH' ?
-    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"} :
-    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
-```
-
-with Javascript code like
-
-```javascript
-(typeof repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"] === 'object'
-             ) ? (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]
-             ) : (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName”]
-             ); 
-```
-
-
-and that would get ugly pretty fast.
+writing code to access the data as plain JSON. 
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
@@ -467,45 +489,18 @@ an attribute.  Fortunately, there is no good reason to do that in a NIEM IEP.
 
 ### Element with Simple Content
 
-The `nc:Date` element has simple content and no attributes.  Its JSON
+The `nc:Date` element has simple content and no attributes.  Its JSON-LD
 representation is
 
 ```javascript
   "nc:Date" : {
-    "rdf:value" : "1893-05-04"
+    "rdf:value" : "2006-05-04"
   }
 ```
 
-Now, since there are no attributes, this
-simple content could instead be represnted by 
-
-```javascript
-  "nc:Date" : "1893-05-04"
-```
-
-but then when developers wanted to access the simple content, they
-would have to always test whether the value was a string or an object,
-writing Perl
-
-```perl
-ref($r->{"nc:Date"}) eq 'HASH' ?
-    $r->{"nc:Date"}->{"rdf:value"} :
-    $r->{"nc:Date"}
-```
-
-writing Javascript
-
-```javascript
-(typeof normal_simple_content_json["nc:Date"] ==='object'
-             ) ? (
-                    niem_simple_content_json["nc:Date"]["rdf:value"]
-             ) : (
-                    normal_simple_content_json["nc:Date"]
-             ); 
-```
-
-As with repeatable elements, life is easier for the developers with
-a consistent representation for all simple elements.
+This makes the JSON-LD representation consistent with 
+[NDR content of an element]({{page.ndr-href}}#section_5.6.5.2), where it specifies 
+that non-empty simple values are mapped in this way.
 
 ### Element with Numeric or Boolean Content
 
@@ -551,7 +546,7 @@ representation for `<nc:Person structures:id="P01">` is
 
 ```javascript
 { "nc:Person" : {
-    "@id" : "http://example.org/Person/P01" },
+    "@id" : "P01" },
     <!-- child elements go here --> }
   }
 ```
@@ -570,7 +565,7 @@ For example, the representation for
 
 ```javascript
 { "nc:RoleOfPerson" : {
-    "@id" : "http://example.org/Person/P01" }
+    "@id" : "P01" }
 }
 ```
 
@@ -814,16 +809,6 @@ Like this?
 }
 ```
 
-### Completed json-ld example from NIEM iep
-
-> This is still incomplete.  &mdash;@leilatite
->
-> And I changed the IEP, but haven't yet revised the JSON-LD &mdash;@iamdrscott
-
-```json
-{% include_relative sample-iepd/iep-samples/iep3.jsonld %}
-```
-
 ## Implementing Translators
 
 Discuss an **easy button** transfrom from NIEM XML to JSON-LD, treating input
@@ -843,9 +828,39 @@ using XSLT3's JSON capability.
 
 ### Expressing types
 
-> How do we put type info in the LD? &mdash;@webb
+The `@type` keyword is used to associate a type with a node. 
+ The concept of a node type and a value type are different. A _node type_ specifies the type of 
+ thing that is being described, like a Person, Location, or Event. A _value type_ specifies the 
+ data type of a particular value, such as an integer, a floating point number, or a date. 
+ Using `@type` keywords is optional. In general, the NIEM IEPD uses XML Schema to define node types 
+ or to constrain value types so it would not be necessary for the JSON-LD to repeat all of that.
 
-The @type keyword is used to associate a type with a node. The concept of a node type and a value type are different. A _node type_ specifies the type of thing that is being described, like a Person, Location, or Event. A _value type_ specifies the data type of a particular value, such as an integer, a floating point number, or a date. Using @type keywords is optional. In general, the NIEM IEPD uses XML Schema define node types or to constrain value types so it would not be necessary for the JSON-LD to repeat all of that.
+If you need to specify type information for handling the iep data correctly, you can add it where needed. 
+This example specifies that the node type of Person in the iep is a NIEM PersonType and the 
+value type of their PersonBirthDate is an xsd date type.
+
+```javascript
+{
+  "@context": {
+    ...
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "niem-xs": "http://release.niem.gov/niem/proxy/xsd/3.0/#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    ...
+      "nc:Person": {
+        "@id": "P01",
+        "@type" : "nc:PersonType",
+        "nc:PersonBirthDate": {
+          "nc:Date": {
+            "rdf:value": "2006-05-04",
+            "@type" : "niem-xs:date"
+          }
+        }
+    }
+```      
+
+See [JSON-LD Section 6.4 Typed Values]({{page.json-ld-href}}#typed-values) for more information on
+how to express typed values.
 
 ### External XML content
 
@@ -862,8 +877,99 @@ The @type keyword is used to associate a type with a node. The concept of a node
 > it's been encoded the way you expected. &mdash;@webb
 
 ### Linking contexts via HTTP headers
+If you have existing JSON data that you want to expose as JSON-LD, you can
+do that by supplying a separate JSON-LD context for it. This provides an
+upgrade path for developers who need to be able to continue to support regular JSON.
+You do this by adding a HTTP Link Header as specified by [RFC5988](#bibrfc5988) 
+using the **http://www.w3.org/ns/json-ld#context** link relation.  
 
-References [JSON-LD Specification Section 6.8, &ldquo;Interpresting JSON as JSON-LD&rdquo;](http://www.w3.org/TR/json-ld/#interpreting-json-as-json-ld).
+See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
+of how to implement this.
+
+### Code samples 
+
+#### Repeatable Elements
+The IEPD definition describes whether elements can be repeated. These elements
+go into a JSON array, even if there is only one element.
+For example, in Perl,
+given a reference to the JSON object for `nc:Person`, the code to
+access the contents of the first `PersonMiddleName` element would be
+
+```perl
+$r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
+```
+
+In Javascript, if we had a reference to
+the JSON object for `nc:Person`, we would access the contents of the
+first `PersonMiddleName` element with
+
+```javascript
+repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]; 
+```
+
+If the JSON serialization used an array only for elements that are actually *repeated*,
+then it would be necessary to test whether the array is there, with Perl code like:
+
+```perl
+ref($r->{"nc:PersonName"}->{"nc:PersonMiddleName"}) eq 'HASH' ?
+    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"} :
+    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
+```
+
+and with Javascript code like
+
+```javascript
+(typeof repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"] === 'object'
+             ) ? (
+                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]
+             ) : (
+                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName”]
+             ); 
+```
+
+
+and that would get ugly pretty fast.
+
+#### Element with Simple Content
+
+For simple content with no attributes, this
+simple content could be represented by 
+
+```javascript
+  "nc:Date" : "2006-05-04"
+```
+
+instead of
+
+```javascript
+  "nc:Date" : {
+    "rdf:value" : "2006-05-04"
+  }
+```
+
+but then when developers wanted to access the simple content, they
+would have to always test whether the value was a string or an object,
+writing Perl
+
+```perl
+ref($r->{"nc:Date"}) eq 'HASH' ?
+    $r->{"nc:Date"}->{"rdf:value"} :
+    $r->{"nc:Date"}
+```
+
+or writing Javascript
+
+```javascript
+(typeof normal_simple_content_json["nc:Date"] ==='object'
+             ) ? (
+                    niem_simple_content_json["nc:Date"]["rdf:value"]
+             ) : (
+                    normal_simple_content_json["nc:Date"]
+             ); 
+```
+
+As with repeatable elements, life is easier for the developers with
+a consistent representation for all simple elements.
 
 ## Roadmap for future work
 
@@ -887,10 +993,18 @@ Describe approaches or tools for transforming.
 Richard Cyganiak, David Wood, Markus Lanthaler, Editors. 09 January 2014. W3C Proposed Recommendation.
 RDF 1.1 Concepts and Abstract Syntax. Available from 
 [http://www.w3.org/TR/rdf11-concepts/](http://www.w3.org/TR/rdf11-concepts/)
+* <a name="bibrfc5988"></a>RFC5988: M. Nottingham. [Web Linking](http://www.ietf.org/rfc/rfc5988.txt). October 2010. Internet RFC 5988. Available from: [http://www.ietf.org/rfc/rfc5988.txt](http://www.ietf.org/rfc/rfc5988.txt)
 * <a name="bibschema"></a>[Schema.Org](http://schema.org/)
 * <a name="BlankNodeIDs"></a>[Blank Node Identifiers](https://www.w3.org/TR/json-ld/#dfn-blank-node-identifier)
 
-## Full example: XML instance document {#full-example-xml}
+## Full example: {#full-example}
+
+The walkthrough of how to transform an XML instance document IEP into a JSON-LD
+data instance is demonstrated using the full example documents within this
+section. These examples were constructed to show many aspects and features of
+NIEM XML instance documents.
+
+### Full example: XML instance document {#full-example-xml}
 
 The following XML document is the XML form for the full example from [Section 2, above](#xml-to-json).
 
@@ -898,7 +1012,7 @@ The following XML document is the XML form for the full example from [Section 2,
 {% include_relative full-example.xml %}
 ```
 
-## Full example: JSON data {#full-example-json}
+### Full example: JSON data {#full-example-json}
 
 The following JSON data is a compact JSON-LD form of the full example from [Section 2, above](#xml-to-json).
 

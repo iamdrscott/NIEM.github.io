@@ -10,7 +10,7 @@
   },
   "exch:CrashDriverInfo": {
     "nc:Person": {
-      "@id": "http://example.org/Person/P01",
+      "@id": "P01",
       "nc:PersonBirthDate": {
         "nc:Date": {
           "rdf:value": "1893-05-04"
@@ -86,9 +86,9 @@
       }
     },
     "j:Charge": {
-      "@id": "http://example.org/Charge/CH01",
+      "@id": "CH01",
       "j:JusticeMetadata": {
-        "@id": "http://example.org/JusticeMetadata/MD01",
+        "@id": "MD01",
         "j:CriminalInformationIndicator": {
           "rdf:value": true
         }
