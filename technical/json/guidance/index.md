@@ -436,44 +436,7 @@ The schema is consulted to determine whether an element is
 *repeatable*, and not the the XML to see if the element is actually
 *repeated*. If a repeatable element appears at all, it gets an
 array. This consistency makes life easier for developers who are
-writing code to access the data as plain JSON. For example, in Perl,
-given a reference to the JSON object for `nc:Person`, the code to
-access the contents of the first `PersonMiddleName` element would be
-
-```perl
-$r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
-```
-
-For example, in Javascript, if we had a reference to
-the JSON object for `nc:Person`, we would access the contents of the
-first `PersonMiddleName` element with
-
-```javascript
-repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]; 
-```
-
-If the JSON serialization used an array only for elements that are actually *repeated*,
-then it would be necessary to test whether the array is there, with Perl code like:
-
-```perl
-ref($r->{"nc:PersonName"}->{"nc:PersonMiddleName"}) eq 'HASH' ?
-    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"} :
-    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
-```
-
-with Javascript code like
-
-```javascript
-(typeof repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"] === 'object'
-             ) ? (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]
-             ) : (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName”]
-             ); 
-```
-
-
-and that would get ugly pretty fast.
+writing code to access the data as plain JSON. 
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
@@ -522,45 +485,18 @@ an attribute.  Fortunately, there is no good reason to do that in a NIEM IEP.
 
 ### Element with Simple Content
 
-The `nc:Date` element has simple content and no attributes.  Its JSON
+The `nc:Date` element has simple content and no attributes.  Its JSON-LD
 representation is
 
 ```javascript
   "nc:Date" : {
-    "rdf:value" : "1893-05-04"
+    "rdf:value" : "2006-05-04"
   }
 ```
 
-Now, since there are no attributes, this
-simple content could instead be represnted by 
-
-```javascript
-  "nc:Date" : "1893-05-04"
-```
-
-but then when developers wanted to access the simple content, they
-would have to always test whether the value was a string or an object,
-writing Perl
-
-```perl
-ref($r->{"nc:Date"}) eq 'HASH' ?
-    $r->{"nc:Date"}->{"rdf:value"} :
-    $r->{"nc:Date"}
-```
-
-writing Javascript
-
-```javascript
-(typeof normal_simple_content_json["nc:Date"] ==='object'
-             ) ? (
-                    niem_simple_content_json["nc:Date"]["rdf:value"]
-             ) : (
-                    normal_simple_content_json["nc:Date"]
-             ); 
-```
-
-As with repeatable elements, life is easier for the developers with
-a consistent representation for all simple elements.
+This makes the JSON-LD representation consistent with 
+[NDR content of an element]({{page.ndr-href}}#section_5.6.5.2), where it specifies 
+that non-empty simple values are mapped in this way.
 
 ### Element with Numeric or Boolean Content
 
@@ -777,11 +713,11 @@ using XSLT3's JSON capability.
 
 ### Expressing types
 
-The [@type]({{page.json-ld-href}}#typed-values) keyword is used to associate a type with a node. 
+The `@type` keyword is used to associate a type with a node. 
  The concept of a node type and a value type are different. A _node type_ specifies the type of 
  thing that is being described, like a Person, Location, or Event. A _value type_ specifies the 
  data type of a particular value, such as an integer, a floating point number, or a date. 
- Using [@type]({{page.json-ld-href}}#typed-values) keywords is optional. In general, the NIEM IEPD uses XML Schema to define node types 
+ Using `@type` keywords is optional. In general, the NIEM IEPD uses XML Schema to define node types 
  or to constrain value types so it would not be necessary for the JSON-LD to repeat all of that.
 
 If you need to specify type information for handling the iep data correctly, you can add it where needed. 
@@ -792,7 +728,9 @@ value type of their PersonBirthDate is an xsd date type.
 {
   "@context": {
     ...
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
     "niem-xs": "http://release.niem.gov/niem/proxy/xsd/3.0/#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     ...
       "nc:Person": {
         "@id": "P01",
@@ -805,6 +743,9 @@ value type of their PersonBirthDate is an xsd date type.
         }
     }
 ```      
+
+See [JSON-LD Section 6.4 Typed Values]({{page.json-ld-href}}#typed-values) for more information on
+how to express typed values.
 
 ### External XML content
 
@@ -829,6 +770,91 @@ using the **http://www.w3.org/ns/json-ld#context** link relation.
 
 See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
 of how to implement this.
+
+### Code samples 
+
+#### Repeatable Elements
+The IEPD definition describes whether elements can be repeated. These elements
+go into a JSON array, even if there is only one element.
+For example, in Perl,
+given a reference to the JSON object for `nc:Person`, the code to
+access the contents of the first `PersonMiddleName` element would be
+
+```perl
+$r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
+```
+
+In Javascript, if we had a reference to
+the JSON object for `nc:Person`, we would access the contents of the
+first `PersonMiddleName` element with
+
+```javascript
+repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]; 
+```
+
+If the JSON serialization used an array only for elements that are actually *repeated*,
+then it would be necessary to test whether the array is there, with Perl code like:
+
+```perl
+ref($r->{"nc:PersonName"}->{"nc:PersonMiddleName"}) eq 'HASH' ?
+    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"} :
+    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
+```
+
+and with Javascript code like
+
+```javascript
+(typeof repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"] === 'object'
+             ) ? (
+                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]
+             ) : (
+                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName”]
+             ); 
+```
+
+
+and that would get ugly pretty fast.
+
+#### Element with Simple Content
+
+For simple content with no attributes, this
+simple content could be represented by 
+
+```javascript
+  "nc:Date" : "2006-05-04"
+```
+
+instead of
+
+```javascript
+  "nc:Date" : {
+    "rdf:value" : "2006-05-04"
+  }
+```
+
+but then when developers wanted to access the simple content, they
+would have to always test whether the value was a string or an object,
+writing Perl
+
+```perl
+ref($r->{"nc:Date"}) eq 'HASH' ?
+    $r->{"nc:Date"}->{"rdf:value"} :
+    $r->{"nc:Date"}
+```
+
+or writing Javascript
+
+```javascript
+(typeof normal_simple_content_json["nc:Date"] ==='object'
+             ) ? (
+                    niem_simple_content_json["nc:Date"]["rdf:value"]
+             ) : (
+                    normal_simple_content_json["nc:Date"]
+             ); 
+```
+
+As with repeatable elements, life is easier for the developers with
+a consistent representation for all simple elements.
 
 ## Roadmap for future work
 
