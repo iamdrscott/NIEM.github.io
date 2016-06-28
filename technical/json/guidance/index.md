@@ -14,7 +14,7 @@ json-api-href: http://www.w3.org/TR/json-ld-api/
 ## Authors
 {:.no_toc}
 
-* Scott Renner <srenner@mitre.org>, @iamdrscott
+* Scott Renner <sar@mitre.org>, @iamdrscott
 * Webb Roberts <webb.roberts@gtri.gatech.edu>, @webb
 * Leila Tite <Leila.Tite@co.hennepin.mn.us>, @leilatite
 
@@ -95,7 +95,7 @@ aspects of this guidance are:
 ### The NIEM data model and RDF {#niem-and-rdf}
 
 The [NIEM Naming and Design Rules (NDR)]({{page.ndr-href}}) is the main document that
-explains the meaning of NIEM&endash;conformant XML schemas and XML instance
+explains the meaning of NIEM&ndash;conformant XML schemas and XML instance
 documents. The framework that the NIEM NDR relies on for meaning is the Resource
 Description Framework (RDF), which defines a data model that is the basis for
 Semantic Web technologies. NIEM defines the meaning of conformant XML schemas
@@ -175,7 +175,7 @@ context&hellip;
 }
 ```
 
-A JSON-LD context can applied to JSON-LD several ways, including by serving it
+A JSON-LD context can be applied to JSON-LD several ways, including by serving it
 as part of an HTTP response, or by reference from within a JSON-LD data
 instance.
 
@@ -227,7 +227,7 @@ transformation of a NIEM or XML concept into corresponding JSON-LD. The full
 source XML appears in [an appendix below](#full-example-xml). The resulting
 JSON-LD also appears in [an appendix below](#full-example-json).
 
-This guidance describes teh translation of an IEP (information exchange package,
+This guidance describes the translation of an IEP (information exchange package,
 an XML instance document) defined against an IEPD (information exchange package
 description). It walks through various aspects of the IEP and transforms the IEP
 to JSON-LD piece by piece.
@@ -294,7 +294,7 @@ This means that, if an IR
         "j" : "http://release.niem.gov/niem/domains/jxdm/5.1/#",
         "nc" : "http://release.niem.gov/niem/niem-core/3.0/#",
         "geo" : "http://release.niem.gov/niem/adapters/geospatial/3.0/",
-        "gml" : "http://www.opengis.net/gml/3.2",
+        "gml" : "http://www.opengis.net/gml/3.2#",
         "structures" : "http://release.niem.gov/niem/structures/3.0/#",
         "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     },
@@ -695,13 +695,124 @@ something like example from [stack overflow](http://stackoverflow.com/questions/
 
 ### Adapter Elements
 
-> I plan to add a Location element with GML content.  Then we can say
-> that you're really on your own with adapted content... but the NIEM
-> rules will often work.  I think they work for GML.  Let's see,
-> anyway. &mdash;@iamdrscott
+IEPD developers sometimes want to reuse schema components defined in
+an existing standard via a schema that does not conform to the NDR.
+The adapter elements defined in [NDR section 10.2.3, &ldquo;External
+adapter types and external
+components&rdquo;]({{page.ndr-href}}#section_10.2.3) are the NIEM
+mechanism for including these external components in the IEPD.  For
+instance, in the following section of the sample IEP, the
+`geo:LocationGeospatialPoint` element is a NIEM-conforming
+adapter. The external content of that adapter element (`gml:Point`) is defined by the Open
+Geospatial Consortium (OGC) in the Geographic Markup Language (GML).
 
-> Do we want to specify some other kind of example? It sounds like GML could be problematic.
-> The GML people have geo-json.  &mdash;@leilatite
+```xml
+<geo:LocationGeospatialPoint>
+    <gml:Point gml:id="PT01" srsName="urn:ogc:def:crs:EPSG::4326">
+        <gml:pos>51.835 -0.417</gml:pos>
+    </gml:Point>
+</geo:LocationGeospatialPoint>
+```
+
+Because the external content of an adapter element does not follow the
+NDR, the guidance in this document may not apply.  Developers must
+decide how to convert external content to JSON on a case-by-case
+basis, and must also decide which of the three consumer use cases
+(plain JSON, JSON-LD, RDF) they will support. For the adapter element
+in the sample IEP, the developer might apply any of the following
+solutions:
+
+#### Pretend the external content is NIEM conforming
+
+The developer could simply apply the guidance in this document as if
+the external content were NIEM conforming.  In this case, the adapter
+element is converted to
+
+```json
+"geo:LocationGeospatialPoint": {
+  "gml:Point": {
+    "gml:id": "PT01",
+    "srsName": "urn:ogc:def:crs:EPSG::4326",
+    "gml:pos": {
+      "rdf:value": "51.835 -0.417"
+    }
+  }
+}
+```
+
+That will work when processed as plain JSON.  When processed as
+JSON-LD, the resulting IRIs in the expanded form are
+reasonable. However, because the `srsName` attribute does not have a
+namespace in GML, it will be dropped from the expanded form. That will
+probably cause difficulties for the JSON-LD and RDF consumer use
+cases.
+
+#### Create a custom mapping to JSON-LD
+
+The difficulty with the `srsName` attribute could be resolved with a
+custom mapping, one which extends the guidance in this document by
+supplying a special `@context` pair for the content of the adapter
+element. The resulting JSON-LD would be
+
+```json
+"geo:LocationGeospatialPoint": {
+  "@context": {
+    "srsName": "http://www.opengis.net/gml/3.2#srsName"
+  },
+  "gml:Point": {
+    "gml:id": "PT01",
+    "srsName": "urn:ogc:def:crs:EPSG::4326",
+    "gml:pos": {
+      "rdf:value": "51.835 -0.417"
+    }
+  }
+}
+```
+
+This approach produces a plausible IRI for the `srsName` attribute in
+the expanded JSON-LD, and so should work for the JSON-LD and RDF
+consumer use cases.
+
+#### Represent the external content with GeoJSON
+
+GeoJSON is a geospatial data interchange format based on JSON. The
+Internet Engineering Task Force (IETF), in conjunction with the
+original specification authors, has formed the [Geographic JSON
+WG](https://datatracker.ietf.org/wg/geojson/charter/) to standardize
+the format. Although GeoJSON is not a specification of the OGC, it is
+still a plausible choice for encoding GML content in JSON. With this
+solution, the adapter element is converted to
+
+```json
+"geo:LocationGeospatialPoint": {
+  "@context": {
+    "geometry": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#geometry",
+    "type": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#type",   
+    "coordinates": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#coordinates"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [51.835, -0.417]
+  }
+}
+```
+
+That will work when processed as plain JSON, ignoring the `@context`
+pair. Defining the context as shown will produce plausible IRIs in the
+expanded JSON-LD and converted RDF. A better base IRI would be
+desirable, of course.
+
+#### Represent the external content as an XMLLiteral blob
+
+Like this?
+
+```json
+"geo:LocationGeospatialPoint": {
+  "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral",
+  "@value":
+  "<gml:Point gml:id="PT01" srsName="urn:ogc:def:crs:EPSG::4326"> <gml:pos>51.835 -0.417</gml:pos> </gml:Point>"
+}
+```
 
 ### Completed json-ld example from NIEM iep
 
