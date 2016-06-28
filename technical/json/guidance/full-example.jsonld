@@ -43,7 +43,7 @@
       "nc:IncidentLocation": {
         "geo:LocationGeospatialPoint": {
           "gml:Point": {
-            "gml:id": "PT01",
+            "@id": "_:PT01",
             "srsName": "urn:ogc:def:crs:EPSG::4326",
             "gml:pos": {
               "rdf:value": "51.835 -0.417"

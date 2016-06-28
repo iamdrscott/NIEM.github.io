@@ -726,7 +726,7 @@ element is converted to
 ```json
 "geo:LocationGeospatialPoint": {
   "gml:Point": {
-    "gml:id": "PT01",
+    "@id": "_:PT01",
     "srsName": "urn:ogc:def:crs:EPSG::4326",
     "gml:pos": {
       "rdf:value": "51.835 -0.417"
@@ -755,7 +755,7 @@ element. The resulting JSON-LD would be
     "srsName": "http://www.opengis.net/gml/3.2#srsName"
   },
   "gml:Point": {
-    "gml:id": "PT01",
+    "@id": "_:PT01",
     "srsName": "urn:ogc:def:crs:EPSG::4326",
     "gml:pos": {
       "rdf:value": "51.835 -0.417"
