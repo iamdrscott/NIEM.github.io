@@ -791,7 +791,7 @@ value type of their PersonBirthDate is a NIEM Date type.
 ```json
 "nc:Person": {
       "@id": "P01",
-      "@type" : "http://release.niem.gov/niem/niem-core/3.0/PersonType",
+      "@type" : "nc:PersonType",
       "nc:PersonBirthDate": {
         "nc:Date": {
           "rdf:value": "2006-05-04",
