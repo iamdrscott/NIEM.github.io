@@ -2,7 +2,8 @@
 title: Non-Normative Guidance in Using NIEM with JSON
 layout: specification
 ndr-href: https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/NIEM-NDR-3.0-2014-07-31.html
-json-api-href: http://www.w3.org/TR/json-ld-api/
+json-ld-api-href: http://www.w3.org/TR/json-ld-api/
+json-ld-href: http://www.w3.org/TR/json-ld/
 ---
 
 ## Contents
@@ -95,7 +96,7 @@ aspects of this guidance are:
 ### The NIEM data model and RDF {#niem-and-rdf}
 
 The [NIEM Naming and Design Rules (NDR)]({{page.ndr-href}}) is the main document that
-explains the meaning of NIEM&endash;conformant XML schemas and XML instance
+explains the meaning of NIEM&ndash;conformant XML schemas and XML instance
 documents. The framework that the NIEM NDR relies on for meaning is the Resource
 Description Framework (RDF), which defines a data model that is the basis for
 Semantic Web technologies. NIEM defines the meaning of conformant XML schemas
@@ -183,12 +184,12 @@ Another reason to use JSON-LD to represent NIEM data is that JSON-LD explicitly
 supports a set of algorithms for manipulating JSON-LD data. The process of going
 from a long form of JSON-LD to a short form is the compaction algorithm,
 described by
-[JSON-LD 1.0 Processing Algorithms and API, Section 2.2, &ldquo;Compaction&rdquo;]({{page.json-api-href}}#compaction).
+[JSON-LD 1.0 Processing Algorithms and API, Section 2.2, &ldquo;Compaction&rdquo;]({{page.json-ld-api-href}}#compaction).
 
 Similarly, the JSON-LD specifications define a process of expanding JSON-LD into
 a canonical long-form, which inlines context information, and expands IRIs into
 their long forms. This is described by
-[JSON-LD 1.0 Processing Algorithms and API, Section 2.1, &ldquo;Expansion&rdquo;]({{json-api-href}}#expansion). The
+[JSON-LD 1.0 Processing Algorithms and API, Section 2.1, &ldquo;Expansion&rdquo;]({{page.json-ld-api-href}}#expansion). The
 expanded form of the above data follows:
 
 ```javascript
@@ -236,6 +237,26 @@ This section makes simplifying assumptions, which may not apply to every NIEM
 IEP. If your IEP is more complicated, then you may have to extend the
 guidelines to cover your data.
 
+Throughout these examples, at each stage, content is omitted or held back for
+later sections. When content is left out, an ellipsis (&ldquo;&hellip;&rdquo;)
+appears in place of the omitted text.
+
+### IEP XML instance document
+
+The IEP represents an object, evident in an instance by an outside set of
+curly braces. The object for the root element and `@context` go within that object:
+
+```javascript
+{
+    @context {
+        ...
+    },
+   ...
+}
+```
+
+Rules for what goes in this object follow below.
+
 ### Namespaces and JSON-LD context
 
 NIEM uses XML namespaces to distinguish components with similar names, to
@@ -262,86 +283,120 @@ Take the sample IEP:
 
 ```xml
 <exch:CrashDriverInfo 
- xmlns:exch="http://example.com/CrashDriver/1.0/"
- xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
- xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
- xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
- xmlns:gml="http://www.opengis.net/gml/3.2"
- xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <nc:Person structures:id="P01">
-  …
+    xmlns:exch="http://example.com/CrashDriver/1.0/"
+    xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
+    xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
+    xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:structures="http://release.niem.gov/niem/structures/3.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <nc:Person structures:id="P01">
+  ...
+</exch:CrashDriverInfo>
 ```
 
 Convert each declared namespace prefix into an `@context` entry:
 
-* Each prefix is translated into a short name
-* The namespace name assigned to the prefix is converted into an IRI root, constructing IRIs conforming to the rules in
-[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1).
+* The namespace prefix becomes a short term.
+* The namespace name assigned to the prefix is converted into an IRI root.
 
-The NDR states how IRIs are constructed from QNames. This leads to the definition of IRI roots as follows:
+The rules for constructing IRIs from QNames are provided by
+[NDR section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1). This
+leads to the definition of IRI roots as follows:
 
-* If namespace name ends with &ldquo;#&rdquo;, then the IRI root is the namespace name
-* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;)
+* If the namespace name ends with &ldquo;#&rdquo;, then the IRI root is the
+  namespace name.
+* Otherwise: concatenate(namespace name, &ldquo;#&rdquo;).
 
-This means that, if an IR
+For the QName `nc:Person` this yields the IRI `http://release.niem.gov/niem/niem-core/3.0/#Person`. 
 
+In addtion, we apply the following guidelines:
+
+* Omit the `xsi` namespace, `http://www.w3.org/2001/XMLSchema-instance`, which
+  is reserved for XML Schema-specific concepts, and is not carried over into
+  JSON-LD.
+* Omit any namespace prefixes used *only* in the content of external adapter elements.
+   * Omit namespace `gml`
+* Include a declaration of `rdf` to
+  `http://www.w3.org/1999/02/22-rdf-syntax-ns#`. This is used for `rdf:value`
+  and `rdf:XMLLiteral`.
+
+This yields the following `@context` entry:
 
 ```javascript
 {
-    "@context" : {
-        "exch" : "http://example.com/CrashDriver/1.0/#",
-        "j" : "http://release.niem.gov/niem/domains/jxdm/5.1/#",
-        "nc" : "http://release.niem.gov/niem/niem-core/3.0/#",
-        "geo" : "http://release.niem.gov/niem/adapters/geospatial/3.0/",
-        "gml" : "http://www.opengis.net/gml/3.2",
-        "structures" : "http://release.niem.gov/niem/structures/3.0/#",
-        "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    },
-    "exch:CrashDriverInfo" : {
-        <!-- remainder of JSON-LD for the CrashDriverInfoElement goes here -->
-    }
+  "@context": {
+    "exch": "http://example.com/CrashDriver/1.0/#",
+    "j": "http://release.niem.gov/niem/domains/jxdm/5.1/#",
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "structures": "http://release.niem.gov/niem/structures/3.0/#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  },
+  ...
 }
 ```
 
-The `@context` value must have a pair for every namespace declaration
-that is in scope and is referenced within the root element. Notice how
-there is a `#` character appended to the URIs from the namespace
-declarations. This is needed to make the [JSON-LD expanded term
-definition](https://www.w3.org/TR/json-ld/#the-context) align with the
-[resource IRI for the schema
-component](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5.6.1).
-For example, the JSON-LD term `exch:CrashDriverInfo` should expand to
-`http://example.com/CrashDriver/1.0/#CrashDriverInfo`, because that is the
-IRI for the `CrashDriverInfo` element declaration in the IEPD schema.
+### Document element (A.K.A. root element)
 
-### Document (root) element
+Each element within the IEP is converted to a key in a
+[JSON-LD node object]({{page.json-ld-href}}#node-objects). 
 
-The root element (or document element) of a NIEM IEP is converted to a
-JSON object with two pairs.  One key is the JSON-LD reserved term
-`@context`. The key for the other pair is the QName of the root
-element. So, for example, the JSON-LD for the `CrashDriverInfo` IEP is:
-
-
-
-The pair in `@context` with the `rdf` key is there for a reason, which
-will be presented later.
-
-Apart from the `@context` pair, the JSON-LD representation of the root
-element is the same as the representation of any element with complex
-content.
-
-### Element with Complex Content
-
-Consider the `j:CrashDriver` element in our example IEP.  Its JSON-LD
-representation is
+The root element (or document element) of a NIEM IEP is also converted to a node
+object. It is given the JSON key corresponding to the QName (XML qualified name)
+of the element. This may be expanded into an IRI by a JSON-LD processor, but
+this guidance recommends using the QName, supported by a context entry for the
+IRI root. Within the [full example](#full-example), this yields:
 
 ```javascript
-  "j:CrashDriver" : {
-    { "nc:RoleOfPerson" : <!-- RoleOfPerson element content --> },
-    { "j:DriverLicense" : <!-- DriverLicense element content --> }
+{
+  "@context": {
+    "exch": "http://example.com/CrashDriver/1.0/#",
+    ...
+  },
+  "exch:CrashDriverInfo": {
+    ...
   }
+}
 ```
+
+### Element content of an object or association type
+
+Since the top level element is a
+[NIEM object type]({{ndr-href}}#definition_object_type), we convert most
+elements within to a key for the top-level element's JSON-LD object. In the
+sample instance, `exch:CrashDriverInfo` has the following child elements:
+
+* `nc:Person`
+* `j:Crash`
+* `j:PersonChargeAssociation`
+* `j:Charge`
+* `j:JusticeMetadata`
+
+These are each converted into keys within the `exch:CrashDriverInfo` object
+described above:
+
+```javascript
+...
+"exch:CrashDriverInfo": {
+  "nc:Person": {
+      ...
+  },
+  "j:CrashDriver": {
+      ...
+  },
+  "j:PersonChargeAssociation": {
+      ...
+  },
+  "j:Charge": {
+      ...
+  }
+}
+```
+
+This is the most common case; this is how object types and association type are
+translated to JSON-LD.
+
+...
 
 The content of an element with complex content is converted to a JSON
 object with one pair for the name of each attribute and one pair for
@@ -703,16 +758,6 @@ something like example from [stack overflow](http://stackoverflow.com/questions/
 > Do we want to specify some other kind of example? It sounds like GML could be problematic.
 > The GML people have geo-json.  &mdash;@leilatite
 
-### Completed json-ld example from NIEM iep
-
-> This is still incomplete.  &mdash;@leilatite
->
-> And I changed the IEP, but haven't yet revised the JSON-LD &mdash;@iamdrscott
-
-```json
-{% include_relative sample-iepd/iep-samples/iep3.jsonld %}
-```
-
 ## Implementing Translators
 
 Discuss an **easy button** transfrom from NIEM XML to JSON-LD, treating input
@@ -779,7 +824,14 @@ RDF 1.1 Concepts and Abstract Syntax. Available from
 * <a name="bibschema"></a>[Schema.Org](http://schema.org/)
 * <a name="BlankNodeIDs"></a>[Blank Node Identifiers](https://www.w3.org/TR/json-ld/#dfn-blank-node-identifier)
 
-## Full example: XML instance document {#full-example-xml}
+## Full example: {#full-example}
+
+The walkthrough of how to transform an XML instance document IEP into a JSON-LD
+data instance is demonstrated using the full example documents within this
+section. These examples were constructed to show many aspects and features of
+NIEM XML instance documents.
+
+### Full example: XML instance document {#full-example-xml}
 
 The following XML document is the XML form for the full example from [Section 2, above](#xml-to-json).
 
@@ -787,7 +839,7 @@ The following XML document is the XML form for the full example from [Section 2,
 {% include_relative full-example.xml %}
 ```
 
-## Full example: JSON data {#full-example-json}
+### Full example: JSON data {#full-example-json}
 
 The following JSON data is a compact JSON-LD form of the full example from [Section 2, above](#xml-to-json).
 
