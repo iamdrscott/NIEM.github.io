@@ -606,7 +606,7 @@ representation for `<nc:Person structures:id="P01">` is
 
 ```javascript
 { "nc:Person" : {
-    "@id" : "http://example.org/Person/P01" },
+    "@id" : "P01" },
     <!-- child elements go here --> }
   }
 ```
@@ -625,7 +625,7 @@ For example, the representation for
 
 ```javascript
 { "nc:RoleOfPerson" : {
-    "@id" : "http://example.org/Person/P01" }
+    "@id" : "P01" }
 }
 ```
 
@@ -786,18 +786,23 @@ The [@type]({{page.json-ld-href}}#typed-values) keyword is used to associate a t
 
 If you need to specify type information for handling the iep data correctly, you can add it where needed. 
 This example specifies that the node type of Person in the iep is a NIEM PersonType and the 
-value type of their PersonBirthDate is a NIEM Date type.
+value type of their PersonBirthDate is an xsd date type.
 
-```json
-"nc:Person": {
-      "@id": "P01",
-      "@type" : "nc:PersonType",
-      "nc:PersonBirthDate": {
-        "nc:Date": {
-          "rdf:value": "2006-05-04",
-          "@type" : "http://release.niem.gov/niem/niem-core/3.0/Date"
+```javascript
+{
+  "@context": {
+    ...
+    "niem-xs": "http://release.niem.gov/niem/proxy/xsd/3.0/#",
+    ...
+      "nc:Person": {
+        "@id": "P01",
+        "@type" : "nc:PersonType",
+        "nc:PersonBirthDate": {
+          "nc:Date": {
+            "rdf:value": "2006-05-04",
+            "@type" : "niem-xs:date"
+          }
         }
-      }
     }
 ```      
 
