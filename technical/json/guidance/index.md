@@ -17,7 +17,7 @@ json-ld-href: http://www.w3.org/TR/json-ld/
 
 * Scott Renner <srenner@mitre.org>, @iamdrscott
 * Webb Roberts <webb.roberts@gtri.gatech.edu>, @webb
-* Leila Tite <Leila.Tite@hennepin.us>, @leilatite
+* Leila Tite <leila.tite@hennepin.us>, @leilatite
 
 ## Abstract
 {:.no_toc}

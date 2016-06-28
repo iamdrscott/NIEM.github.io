@@ -8,7 +8,7 @@
   },
   "exch:CrashDriverInfo": {
     "nc:Person": {
-      "@id": "http://example.org/Person/P01",
+      "@id": "P01",
       "nc:PersonBirthDate": {
         "nc:Date": {
           "rdf:value": "2006-05-04"
@@ -38,7 +38,7 @@
       }
     },
     "j:CrashDriver": {
-      "nc:RoleOfPerson": "http://example.org/Person/P01",
+      "nc:RoleOfPerson": "P01",
       "j:DriverLicense": {
         "j:DriverLicenseCardIdentification": {
           "nc:IdentificationID": {
@@ -56,16 +56,16 @@
       }
     },
     "j:PersonChargeAssociation": {
-      "nc:Person": "http://example.org/Person/P01",
-      "j:Charge": "http://example.org/Charge/CH01",
+      "nc:Person": "P01",
+      "j:Charge": "CH01",
       "j:JuvenileAsAdultIndicator": {
         "rdf:value": true
       }
     },
     "j:Charge": {
-      "@id": "http://example.org/Charge/CH01",
+      "@id": "CH01",
       "j:JusticeMetadata": {
-        "@id": "http://example.org/JusticeMetadata/MD01",
+        "@id": "MD01",
         "j:CriminalInformationIndicator": {
           "rdf:value": true
         }
