@@ -17,6 +17,7 @@
         }
       },
       "nc:PersonName": {
+        "nc:personNameCommentText": "copied",
         "nc:PersonGivenName": {
           "nc:sequenceID": 1,
           "rdf:value": "Peter"
@@ -102,4 +103,3 @@
     }
   }
 }
-

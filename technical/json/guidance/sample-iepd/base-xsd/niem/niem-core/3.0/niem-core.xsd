@@ -117,6 +117,7 @@
           <xs:element ref="nc:PersonMiddleName" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="nc:PersonSurName" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
+        <xs:attribute ref="nc:personNameCommentText" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -150,6 +151,11 @@
       <xs:extension base="niem-xs:string"/>
     </xs:simpleContent>
   </xs:complexType>
+  <xs:attribute name="personNameCommentText" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>A comment about a kind of name for a person.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
   <xs:attribute name="sequenceID" type="xs:integer">
     <xs:annotation>
       <xs:documentation>A numeric identifier that explicitly sequences or orders elements.</xs:documentation>

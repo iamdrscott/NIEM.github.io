@@ -11,7 +11,7 @@
         <nc:PersonBirthDate>
             <nc:Date>1893-05-04</nc:Date>
         </nc:PersonBirthDate>
-        <nc:PersonName>
+        <nc:PersonName nc:personNameCommentText="copied">
             <nc:PersonGivenName nc:sequenceID="1">Peter</nc:PersonGivenName>
             <nc:PersonMiddleName nc:sequenceID="2">Death</nc:PersonMiddleName>
             <nc:PersonMiddleName nc:sequenceID="3">Bredon</nc:PersonMiddleName>

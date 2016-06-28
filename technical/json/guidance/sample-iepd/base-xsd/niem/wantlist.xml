@@ -4,7 +4,12 @@
   xmlns:unece="http://release.niem.gov/niem/codes/unece_rec20/3.0/"
   xmlns:j="http://release.niem.gov/niem/domains/jxdm/5.1/"
   xmlns:usps-3.0.1="http://publication.niem.gov/niem/codes/usps_states/3.0/1/"
-  xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/" xmlns:nc-3.0.1="http://publication.niem.gov/niem/niem-core/3.0/1/">
+  xmlns:nc="http://release.niem.gov/niem/niem-core/3.0/"
+  xmlns:geo="http://release.niem.gov/niem/adapters/geospatial/3.0/"
+  xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:nc-3.0.1="http://publication.niem.gov/niem/niem-core/3.0/1/">
+  <w:Attribute w:name="nc:personNameCommentText"/>
+  <w:Element w:name="geo:LocationGeospatialPoint" w:isReference="false" w:nillable="false"/>
+  <w:Element w:name="j:Crash" w:isReference="false" w:nillable="false"/>
   <w:Element w:name="j:CrashDriver" w:isReference="false" w:nillable="false"/>
   <w:Element w:name="j:JusticeMetadata" w:isReference="false" w:nillable="false"/>
   <w:Element w:name="j:PersonChargeAssociation" w:isReference="false" w:nillable="false"/>
@@ -19,6 +24,10 @@
   <w:Element w:name="nc:Person" w:isReference="false" w:nillable="true"/>
   <w:Element w:name="nc-3.0.1:LocationStateUSPostalServiceCode"
     w:isReference="false" w:nillable="false"/>
+  <w:Type w:name="geo:PointType" w:isRequested="false">
+    <w:ElementInType w:name="gml:Point" w:isReference="false"
+      w:minOccurs="1" w:maxOccurs="1"/>
+  </w:Type>
   <w:Type w:name="j:ChargeType" w:isRequested="false">
     <w:ElementInType w:name="j:ChargeDescriptionText"
       w:isReference="false" w:minOccurs="1" w:maxOccurs="1"/>
@@ -29,6 +38,14 @@
     <w:ElementInType w:name="nc:RoleOfPerson" w:isReference="false"
       w:minOccurs="1" w:maxOccurs="1"/>
     <w:ElementInType w:name="j:DriverLicense" w:isReference="false"
+      w:minOccurs="1" w:maxOccurs="1"/>
+  </w:Type>
+  <w:Type w:name="j:CrashType" w:isRequested="false">
+    <w:ElementInType w:name="j:CrashVehicle" w:isReference="false"
+      w:minOccurs="1" w:maxOccurs="1"/>
+  </w:Type>
+  <w:Type w:name="j:CrashVehicleType" w:isRequested="false">
+    <w:ElementInType w:name="j:CrashDriver" w:isReference="false"
       w:minOccurs="1" w:maxOccurs="1"/>
   </w:Type>
   <w:Type w:name="j:DriverLicenseType" w:isRequested="false">
@@ -67,9 +84,17 @@
     <w:ElementInType w:name="nc:IdentificationJurisdiction"
       w:isReference="false" w:minOccurs="0" w:maxOccurs="1"/>
   </w:Type>
+  <w:Type w:name="nc:IncidentType" w:isRequested="true">
+    <w:ElementInType w:name="nc:IncidentLocation" w:isReference="false"
+      w:minOccurs="1" w:maxOccurs="1"/>
+  </w:Type>
   <w:Type w:name="nc:JurisdictionType" w:isRequested="false">
     <w:ElementInType w:name="nc:LocationState" w:isReference="false"
       w:minOccurs="1" w:maxOccurs="1"/>
+  </w:Type>
+  <w:Type w:name="nc:LocationType" w:isRequested="false">
+    <w:ElementInType w:name="nc:LocationGeospatialCoordinate"
+      w:isReference="false" w:minOccurs="1" w:maxOccurs="1"/>
   </w:Type>
   <w:Type w:name="nc:MeasureType" w:isRequested="false">
     <w:ElementInType w:name="nc:MeasureValue" w:isReference="false"
@@ -81,6 +106,7 @@
     <w:AttributeInType w:name="nc:sequenceID" w:minOccurs="0" w:maxOccurs="1"/>
   </w:Type>
   <w:Type w:name="nc:PersonNameType" w:isRequested="false">
+    <w:AttributeInType w:name="nc:personNameCommentText" w:minOccurs="0" w:maxOccurs="1"/>
     <w:ElementInType w:name="nc:PersonGivenName" w:isReference="false"
       w:minOccurs="1" w:maxOccurs="unbounded"/>
     <w:ElementInType w:name="nc:PersonMiddleName" w:isReference="false"

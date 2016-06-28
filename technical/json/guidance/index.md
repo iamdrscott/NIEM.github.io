@@ -419,18 +419,6 @@ described above:
 This is the most common case; this is how object types and association type are
 translated to JSON-LD.
 
-...
-
-The content of an element with complex content is converted to a JSON
-object with one pair for the name of each attribute and one pair for
-the name of each child element in that content. For an IEP that is
-NIEM-conforming, there can't be a collision between attribute and
-child element names, because of the [camel-case
-rule](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_10.8.1).
-For an IEP that is not NIEM conforming, it is possible to have an
-attribute and a child element with the same name. This document has no
-guidance for that case; developers are on their own.
-
 Note that there is only one pair for each child
 element *name*, no matter how many times that element appears in the
 content.  It is now time to discuss...
@@ -459,7 +447,8 @@ The schema is consulted to determine whether an element is
 *repeatable*, and not the the XML to see if the element is actually
 *repeated*. If a repeatable element appears at all, it gets an
 array. This consistency makes life easier for developers who are
-writing code to access the data as plain JSON. 
+writing code to access the data as plain JSON. (It has no effect on
+developers accessing the data as JSON-LD or RDF.)
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
@@ -480,6 +469,46 @@ this difference, then the IEPD design is bad; it conflicts with the
 [NIEM Conceptual
 Model](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5).
 
+### Element with Complex Content and Attributes
+
+The content of an element with complex content is converted to a JSON
+object with one pair for the name of each attribute and one pair for
+the name of each child element in that content. For example, in the
+sample IEP we have
+
+```xml
+<nc:PersonName nc:personNameCommentText="copied">
+    <nc:PersonGivenName nc:sequenceID="1">Peter</nc:PersonGivenName>
+    <nc:PersonMiddleName nc:sequenceID="2">Death</nc:PersonMiddleName>
+    <nc:PersonMiddleName nc:sequenceID="3">Bredon</nc:PersonMiddleName>
+    <nc:PersonSurName>Wimsey</nc:PersonSurName>
+</nc:PersonName>
+```
+
+which is converted to the following JSON
+
+```javascript
+"nc:PersonName": {
+  "nc:personNameCommentText": "copied",
+  "nc:PersonGivenName": {
+    ...
+  },
+  "nc:PersonMiddleName": [
+    ...
+  ],
+  "nc:PersonSurName": {
+    ...
+  }
+}
+```
+
+Observe that for a NIEM-conforming IEP, there can't be a collision
+between attribute and child element names, because of the [camel-case
+rule](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_10.8.1).
+For an IEP that is not NIEM conforming, it is possible to have an
+attribute and a child element with the same name. This document has no
+guidance for that case; developers are on their own.
+
 ### Element with Simple Content and Attributes
 
 The `nc:PersonGivenName` element has simple content and
@@ -496,12 +525,14 @@ The element's simple content is represented by the pair with the key
 `rdf:value`.  That content requires a pair with *some* special key;
 the representation can't be `{ "nc:PersonGivenName" : "Peter" }`,
 because then there is no place to put the attributes.  The special key
-could have some magic syntax, such as `"."`, and that would work for
-JSON and JSON-LD consumers.  This guidance chooses `rdf:value`,
-because that results in good RDF for consumers converting the JSON-LD
-serialization into RDF, and still works for JSON and JSON-LD
-consumers.  This is the reason for the `rdf` key in the `@context`
-object.
+could have a magic syntax, such as `"."`, but that would only work for
+plain JSON consumers. To process the data as JSON-LD or RDF, the key
+must be a term mapped to an IRI. This guidance chooses `rdf:value` for
+the special key, because that makes the JSON-LD representation
+consistent with [NDR content of an
+element]({{page.ndr-href}}#section_5.6.5.2), which specifies that
+non-empty simple values are mapped in this way, while still working
+for plain JSON consumers.
 
 Obviously this will break if an element in the IEP has `rdf:value` as
 an attribute.  Fortunately, there is no good reason to do that in a NIEM IEP. 
@@ -517,17 +548,13 @@ representation is
   }
 ```
 
-This makes the JSON-LD representation consistent with 
-[NDR content of an element]({{page.ndr-href}}#section_5.6.5.2), where it specifies 
-that non-empty simple values are mapped in this way.
-
 ### Element with Numeric or Boolean Content
 
 When the IEPD schema defines a numeric type for a simple element, the
 value of the JSON pair is a number.  Likewise, when the schema defines
 a boolean type, the value of the JSON pair is `true` or `false`.  For
 example, the representations of `nc:MeasureDecimalValue` and
-`exch:PersonSuspectedSpaceAlienIndicator` are:
+`exch:PersonFictionalCharacterIndicator` are:
 
 ```javascript
   "nc:MeasureDecimalValue" : {
@@ -608,7 +635,7 @@ place. Abstract elements do not appear at all.  For example,
 
 ```xml
 <nc:Person>
-    <!-- Date replaces DateRepresentation -->
+    <!-- Date substituted for DateRepresentation -->
     <nc:PersonBirthDate>
         <nc:Date>1893-05-04</nc:Date>
     </nc:PersonBirthDate>
@@ -660,6 +687,10 @@ representation of `j:DriverLicense` is
 > go there and find out other details, such as when it was issued, when it expires
 > and if there are any restrictions. That would get rid of two blank nodes and
 > the nc:IdentificationID node. &mdash;@leilatite
+
+> Ah, but we don't know what jurisdiction issued this license.  All we
+> have is the number on the card.  So I don't think an @id would work
+> in this case. &mdash;@iamdrscott
 
 The other kind of augmentation element is an element declared in the
 substitution group of an `AugmentationPoint`.  For example, the IEPD

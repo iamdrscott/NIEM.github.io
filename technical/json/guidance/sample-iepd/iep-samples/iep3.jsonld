@@ -10,13 +10,14 @@
   },
   "exch:CrashDriverInfo": {
     "nc:Person": {
-      "@id": "http://example.org/Person/P01",
+      "@id": "P01",
       "nc:PersonBirthDate": {
         "nc:Date": {
           "rdf:value": "1893-05-04"
         }
       },
       "nc:PersonName": {
+        "nc:personNameCommentText": "copied",
         "nc:PersonGivenName": {
           "nc:sequenceID": 1,
           "rdf:value": "Peter"
@@ -43,7 +44,7 @@
       "nc:IncidentLocation": {
         "geo:LocationGeospatialPoint": {
           "gml:Point": {
-            "gml:id": "PT01",
+            "@id": "PT01",
             "srsName": "urn:ogc:def:crs:EPSG::4326",
             "gml:pos": {
               "rdf:value": "51.835 -0.417"
@@ -54,7 +55,7 @@
       "j:CrashVehicle": {
         "j:CrashDriver": {
           "nc:RoleOfPerson": {
-            "@id": "http://example.org/Person/P01"
+            "@id": "P01"
           },
           "j:DriverLicense": {
             "j:DriverLicenseCardIdentification": {
@@ -76,28 +77,28 @@
     },
     "j:PersonChargeAssociation": {
       "nc:Person": {
-        "@id": "http://example.org/Person/P01"
+        "@id": "P01"
       },
       "j:Charge": {
-        "@id": "http://example.org/Charge/CH01"
+        "@id": "CH01"
       },
       "j:JuvenileAsAdultIndicator": {
         "rdf:value": true
       }
     },
     "j:Charge": {
-      "@id": "http://example.org/Charge/CH01",
+      "@id": "CH01",
+      "j:JusticeMetadata": {
+        "@id": "MD01",
+        "j:CriminalInformationIndicator": {
+          "rdf:value": true
+        }
+      },
       "j:ChargeDescriptionText": {
         "rdf:value": "Wild Driving"
       },
       "j:ChargeFelonyIndicator": {
         "rdf:value": false
-      }
-    },
-    "j:JusticeMetadata": {
-      "@id": "http://example.org/JusticeMetadata/MD01",
-      "j:CriminalInformationIndicator": {
-        "rdf:value": true
       }
     }
   }
