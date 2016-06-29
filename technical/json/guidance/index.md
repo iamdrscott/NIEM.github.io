@@ -932,22 +932,22 @@ value type of their PersonBirthDate is an xsd date type.
 ```javascript
 {
   "@context": {
-    ...
     "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
-    "niem-xs": "http://release.niem.gov/niem/proxy/xsd/3.0/#",
+    "xs": "http://www.w3.org/2001/XMLSchema#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    ...
     },
-    ...
       "nc:Person": {
         "@id": "P01",
         "@type" : "nc:PersonType",
         "nc:PersonBirthDate": {
           "nc:Date": {
-            "rdf:value": "2006-05-04",
-            "@type" : "niem-xs:date"
+            "rdf:value": {
+              "@value" : "1893-05-04",
+              "@type"  : "xs:date"
+            }  
           }
         }
+      }  
     }
 ```
 
@@ -957,7 +957,7 @@ content of `nc:MeasureDecimalValue` as being type `xs:decimal`:
 ```javascript
 {
   "@context" : {
-        "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
     "xs": "http://www.w3.org/2001/XMLSchema#"
   },
   "nc:MeasureDecimalValue": {
@@ -968,6 +968,8 @@ content of `nc:MeasureDecimalValue` as being type `xs:decimal`:
   }
 }
 ```
+
+If you don't specify the value type as xs:decimal, it is interpreted by JSON as being of type http://www.w3.org/2001/XMLSchema#double and the value becomes "9.699999999999999E0".
 
 See [JSON-LD Section 6.4 Typed Values]({{page.json-ld-href}}#typed-values) for more information on
 how to express typed values.
