@@ -143,9 +143,13 @@ JSON. JSON-LD provides a lightweight mechanism that allows data to be linked
 across websites. The syntax is easy for humans to read and easy for machines to
 parse and generate.
 
+<!--
 > We don't actually say anything about translating XML schema
 > documents into JSON, and I don't think we are going to say anything
 > about that, so I changed that. &mdash;@iamdrscott
+
+We actually do; Leila's working on @type.
+-->
 
 There are several reasons that JSON-LD is a good fit for NIEM. One reason for
 choosing JSON-LD is context mechanism, which allows names in JSON-LD to look
@@ -333,9 +337,21 @@ In addtion, we apply the following guidelines:
   `http://www.w3.org/1999/02/22-rdf-syntax-ns#`. This is used for `rdf:value`
   and `rdf:XMLLiteral`.
 
+<!--
 > If we decide to toss the adapter section, then we can put back in
 > the guidance to omit namespace prefixes. Otherwise I think we need
 > them. Also, why are we keeping "structures"? &mdash;@iamdrscott
+
+Probably keeping:
+
+* structures:ObjectType, 
+* structures:AssociationType, 
+
+TBD:
+
+* structures:metadata, 
+* structures:relationshipMetadata
+-->
   
 This yields the following `@context` entry:
 
@@ -567,6 +583,8 @@ example, the representations of `nc:MeasureDecimalValue` and
 ```
 
 ### Elements with Empty or Nilled Content
+
+<!-- TODO: null probably isn't the right way to represent something without a simple value. Just omit the rdf:value. -->
 
 The value of an empty element such as `<E/>` is represented by the
 empty string, and the value of an explicitly nilled element such as
@@ -857,6 +875,10 @@ Like this?
   "<gml:Point gml:id="PT01" srsName="urn:ogc:def:crs:EPSG::4326"> <gml:pos>51.835 -0.417</gml:pos> </gml:Point>"
 }
 ```
+
+<!-- Probably not exactly like that. geo:LocationGeospatialPoint is a NIEM
+object type; it can have an @structures:id. It should become a node object. But
+formulated this way, it's a value object (an RDF literal).  -->
 
 ## Implementing Translators
 
