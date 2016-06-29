@@ -136,20 +136,12 @@ JSON-LD's RDF basis.
 ### Use of JSON-LD
 
 This document describes the translation of NIEM-conformant XML
-instance documents into JSON, using JSON-LD as the target JSON
+instance documents (informed by certain features of schemas, such as component types) into JSON, using JSON-LD as the target JSON
 representation. JSON-LD (JavaScript Object Notation for Linking Data) is a
 language-independent data format for representing Linked Data, expressed as
 JSON. JSON-LD provides a lightweight mechanism that allows data to be linked
 across websites. The syntax is easy for humans to read and easy for machines to
 parse and generate.
-
-<!--
-> We don't actually say anything about translating XML schema
-> documents into JSON, and I don't think we are going to say anything
-> about that, so I changed that. &mdash;@iamdrscott
-
-We actually do; Leila's working on @type.
--->
 
 There are several reasons that JSON-LD is a good fit for NIEM. One reason for
 choosing JSON-LD is context mechanism, which allows names in JSON-LD to look
@@ -441,6 +433,8 @@ content.  It is now time to discuss...
 
 ### Repeatable Elements
 
+<!-- TODO: convert this from *repeatable* to *actually repeated* -->
+
 The element `nc:PersonMiddleName` is repeatable in the IEPD schema
 definition of `nc:PersonNameType`. The `PersonName` element is
 converted to this JSON
@@ -486,6 +480,21 @@ this difference, then the IEPD design is bad; it conflicts with the
 Model](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5).
 
 ### Element with Complex Content and Attributes
+
+<!-- reference to another section ("advanced topics") to talk about handling
+rdf:value. You could define rdf:value to something in @context
+
+```javascript
+{
+  "@context": {
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "text" : "rdf:value"	
+  },
+  "nc:Date": { "text": "1893-05-04" }
+}
+```
+ -->
 
 The content of an element with complex content is converted to a JSON
 object with one pair for the name of each attribute and one pair for
@@ -566,6 +575,9 @@ representation is
 
 ### Element with Numeric or Boolean Content
 
+<!-- easy button walkthrough is stringifying or booleans.
+    typing is an advanced topic -->
+
 When the IEPD schema defines a numeric type for a simple element, the
 value of the JSON pair is a number.  Likewise, when the schema defines
 a boolean type, the value of the JSON pair is `true` or `false`.  For
@@ -584,7 +596,8 @@ example, the representations of `nc:MeasureDecimalValue` and
 
 ### Elements with Empty or Nilled Content
 
-<!-- TODO: null probably isn't the right way to represent something without a simple value. Just omit the rdf:value. -->
+<!-- TODO: null probably isn't the right way to represent something without a
+simple value. Just omit the rdf:value. null means the same thing. "" is right out. -->
 
 The value of an empty element such as `<E/>` is represented by the
 empty string, and the value of an explicitly nilled element such as
@@ -619,6 +632,10 @@ The json-ld processor generates a relative IRI that is only valid for
 that instance of the document. You can also use a prefix that is part of a domain that
 you control, even if the resource is not available publicly on the web.
 
+<!-- ids are document relative. processors may convert to absolute IRIs using a
+base URI for the document. base uris may be explicitly assigned in a context
+using "@base" -->
+
 ### References and IDREF attributes
 
 The value of a `structures:ref` attribute and any other IDREF attribute is
@@ -639,10 +656,6 @@ is a reference, two or more pairs is an identified node.
 
 Observe also that the `xsi:nil` attribute is useful only for schema validation, and does
 not appear in the JSON-LD representation.
-
-### Other XSI Attributes
-
-For example, `xsi:type`.
 
 ### Abstract Elements and Substitution Groups
 
@@ -727,6 +740,9 @@ Augmentation elements of this kind are treated the same as any other
 child element.
 
 ### Metadata
+
+<!-- do an easy button transform for metadata. put an "oh well" for relationshipMetadata --> 
+
 > We are still working on figuring out how to represent metadata in JSON-LD.
 > The NDR says to hang metadata on RDF statements, but it is not clear
 > what would be the best way to do that. One option is if the XML contains
@@ -756,6 +772,9 @@ something like example from [stack overflow](http://stackoverflow.com/questions/
 ```
 
 ### Adapter Elements
+
+<!-- TODO: move most of this to an an advanced topics section. this section just
+does a simple custom mapping. Make the JSONLD full example correspond to this. -->
 
 IEPD developers sometimes want to reuse schema components defined in
 an existing standard via a schema that does not conform to the NDR.
@@ -918,6 +937,8 @@ value type of their PersonBirthDate is an xsd date type.
     "niem-xs": "http://release.niem.gov/niem/proxy/xsd/3.0/#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     ...
+    },
+    ...
       "nc:Person": {
         "@id": "P01",
         "@type" : "nc:PersonType",
@@ -928,10 +949,30 @@ value type of their PersonBirthDate is an xsd date type.
           }
         }
     }
-```      
+```
+
+Here is an example of a typed literal, identifying the type of the simple
+content of `nc:MeasureDecimalValue` as being type `xs:decimal`:
+
+```javascript
+{
+  "@context" : {
+        "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "xs": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "nc:MeasureDecimalValue": {
+    "rdf:value": {
+      "@value": "9.7",
+      "@type" : "xs:decimal"
+    }
+  }
+}
+```
 
 See [JSON-LD Section 6.4 Typed Values]({{page.json-ld-href}}#typed-values) for more information on
 how to express typed values.
+
+<!-- `xsi:type` may be mapped to LD. optionally: (1) drop it (2) map over to "@type" -->
 
 ### External XML content
 
@@ -958,6 +999,39 @@ See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdqu
 of how to implement this.
 
 ### Code samples 
+
+Discuss issues related to processing JSON-LD as plain JSON.
+
+Compacted form:
+
+```javascript
+"j:ChargeDescriptionText": {
+  "rdf:value": "Wild Driving"
+}
+```
+
+Expanded form:
+
+```javascript
+"http://release.niem.gov/niem/domains/jxdm/5.1/#ChargeDescriptionText": [
+  {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+      {
+        "@value": "Wild Driving"
+      }
+    ]
+  }
+]
+```
+
+Ideas:
+
+1. Write a helper function that tests for arrays, @value vs simple values, etc.
+1. Write your JSON very consistently to make it easy to write processing code.
+    (e.g., Be really consistent in any XML to JSON transformation)
+
+
+
 
 #### Repeatable Elements
 The IEPD definition describes whether elements can be repeated. These elements
