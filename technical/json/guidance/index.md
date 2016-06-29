@@ -435,18 +435,73 @@ content.  It is now time to discuss...
 
 <!-- TODO: convert this from *repeatable* to *actually repeated* -->
 
-The element `nc:PersonMiddleName` is repeatable in the IEPD schema
-definition of `nc:PersonNameType`. The `PersonName` element is
-converted to this JSON
+In the [full example XML IEP](#full-example-xml), The element
+`nc:PersonMiddleName` is repeated within `nc:PersonName`:
+
+```xml
+<nc:PersonName nc:personNameCommentText="copied">
+    <nc:PersonGivenName nc:sequenceID="1">Peter</nc:PersonGivenName>
+    <nc:PersonMiddleName nc:sequenceID="2">Death</nc:PersonMiddleName>
+    <nc:PersonMiddleName nc:sequenceID="3">Bredon</nc:PersonMiddleName>
+    <nc:PersonSurName>Wimsey</nc:PersonSurName>
+</nc:PersonName>
+```
+
+Since `nc:PersonMiddleName` is repeated, it is represented using the key
+`nc:PersonMiddleName`, with a value that is an array of objects:
 
 ```javascript
-  "nc:PersonName" : {
-    { "nc:PersonGivenName" : <!-- PersonGivenName content --> },
-    { "nc:PersonMiddleName" : [
-        <!-- Content of 1st PersonMiddleName element --> ,
-        <!-- Content of 2nd PersonMiddleName element --> ] },
-    { "nc:PersonSurName" : <!-- PersonSurName content --> }
-  }
+"nc:PersonName": {
+  "nc:PersonGivenName": <!-- content of element nc:PersonGivenName -->,
+  "nc:PersonMiddleName": [
+    <!-- content of 1st element nc:PersonGivenName -->,
+    <!-- content of 1st element nc:PersonGivenName -->
+  ],
+  "nc:PersonSurName": <!-- content of element nc:PersonSurName -->,
+  "nc:personNameCommentText": "copied"
+}
+```
+
+We see that occurrences of element `nc:PersonMiddleName` are bundled together as
+an array, and that array is the value for key `nc:PersonMiddleName`.
+
+**JSON-LD note: arrays**: In JSON-LD, a single object is equivalent to an array that contains a 
+single object. So, the two following pieces of JSON-LD are equivalent:
+
+```javascript
+{
+  "ns:key": "value"
+}
+```
+
+is equivalent to:
+
+```javascript
+{
+  "ns:key" : [ 
+    "value" 
+  ]
+}
+```
+
+**JSON-LD note: order of keys**: In JSON-LD, the order of keys within an object
+are *not* considered significant. This means that the two following pieces of
+JSON-LD are equivalent:
+
+```javascript
+{ 
+  "ns:key1": "value",
+  "ns:key2": "value"
+}
+```
+
+is equivalent to:
+
+```javascript
+{ 
+  "ns:key2": "value",
+  "ns:key1": "value"
+}
 ```
 
 A repeatable element is converted into a JSON object with an array
