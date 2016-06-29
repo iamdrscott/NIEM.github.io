@@ -1122,13 +1122,19 @@ a consistent representation for all simple elements.
 
 ### NIEM Conformance
 
-Describe NTAC's planned path for NIEM-conformant JSON.
+1. Provide a normative specification on a way to generate a JSON-LD instance from a 
+NIEM-conformant XML schema and/or XML instance, and such a JSON-LD instance could be 
+NIEM-conformant. 
+1. Provide a normative specification on verifying NIEM-conformance of a JSON-LD instance to a 
+NIEM-conformant XML schema
 
 ### Support for transforming between XML and JSON
 
 Describe approaches or tools for transforming.
 
+Provide helper functions to check for repeatable elements.
 <div id="body-end"></div>
+
 
 ## References
 
@@ -1370,7 +1376,4 @@ The NTAC intent is that the RDF created by both paths will be
 consistent. This may entail future revisions to the
 [NDR]({{page.ndr-href}}#section_5.6).
 
-## NIEM Conformance
-
-> Haven't written this yet &mdash;@iamdrscott
 
