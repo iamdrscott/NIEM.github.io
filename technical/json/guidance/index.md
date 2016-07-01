@@ -1052,6 +1052,46 @@ upgrade path for developers who need to be able to continue to support regular J
 You do this by adding a HTTP Link Header as specified by [RFC5988](#bibrfc5988) 
 using the **http://www.w3.org/ns/json-ld#context** link relation.  
 
+This JSON example uses non-NIEM terms for the components of the name of a Person:
+
+```javascript
+{
+  "givenName": "Peter",
+  "additionalName": [ "Death",  "Bredon" ],
+  "familyName": "Wimsey"
+}
+```
+
+A separate context file named person.jsonld specifies aliases for those JSON tags to their 
+corresponding NIEM elements:
+
+```javascript
+{
+  "@context": {
+    "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
+    "PersonGivenName" : "http://release.niem.gov/niem/niem-core/3.0/#PersonGivenName",
+    "PersonMiddleName" : "http://release.niem.gov/niem/niem-core/3.0/#PersonMiddleName",
+    "PersonSurName" : "http://release.niem.gov/niem/niem-core/3.0/#PersonSurName",
+    "givenName" : "nc:PersonGivenName",
+    "additionalName" : "nc:PersonMiddleName",
+    "familyName" : "nc:PersonSurName"
+    }
+}
+```
+
+A link header can be added to the plain JSON response that includes:
+
+```
+Link: <http://example.com/contexts/person.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"
+```
+
+The JSON-LD processor prepends the context to the JSON data and expands the original plain JSON into JSON-LD.
+The expanded version contains the NIEM terms for the original values. The context defined them as aliases.
+
+A benefit of separating the context from the JSON is that if you're storing the JSON data in a database you 
+can add new terms to the JSON-LD context without having to replace the inline context in all the data that has already been
+stored.
+
 See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
 of how to implement this.
 
