@@ -1092,6 +1092,8 @@ A benefit of separating the context from the JSON is that if you're storing the 
 can add new terms to the JSON-LD context without having to replace the inline context in all the data that has already been
 stored.
 
+<!-- This approach isn't perfect, because it doesn't convert the values to rdf:value nodes. Should we mention that? -->
+
 See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
 of how to implement this.
 
