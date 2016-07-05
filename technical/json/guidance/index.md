@@ -68,6 +68,11 @@ information exchange package) into a semantically-equivalent JSON serialization.
 
 <!-- what are these? - @webb
 
+Sections not written yet. #1 talks about claiming conformance for JSON
+data by demonstrating a lossless round-trip translation to a
+conforming NIEM IEP. #2 is about the easy-butten translator
+implementation using XPath 3
+
 * A description of NIEM conformance for JSON serialization of IEPs
 * Suggestions for implementing a translator from an XML serialization
   of a particular IEP class to JSON, or the reverse
@@ -231,18 +236,13 @@ consumer use cases.
    
 ## JSON-LD representation of NIEM XML {#xml-to-json}
 
-This section walks through the transformation of a NIEM XML instance document
-into corresponding JSON-LD data. Each section within highlights the
-transformation of a NIEM or XML concept into corresponding JSON-LD. The full
-source XML appears in [an appendix below](#full-example-xml). The resulting
+This section describes the translation of an example IEP (information
+exchange package, an XML instance document), defined by an IEPD
+(information exchange package description), into the corresponding
+JSON-LD data. Each section within highlights the transformation of a
+NIEM or XML concept into corresponding JSON-LD. The full source XML
+appears in [an appendix below](#full-example-xml). The resulting
 JSON-LD also appears in [an appendix below](#full-example-json).
-
-This guidance describes the translation of an IEP (information exchange package,
-an XML instance document) defined against an IEPD (information exchange package
-description). It walks through various aspects of the IEP and transforms the IEP
-to JSON-LD piece by piece.
-
-> Those two paragraphs could be usefully combined &mdash;@iamdrscott
 
 This section makes simplifying assumptions, which may not apply to every NIEM
 IEP. If your IEP is more complicated, then you may have to extend the
@@ -455,7 +455,7 @@ Since `nc:PersonMiddleName` is repeated, it is represented using the key
   "nc:PersonGivenName": <!-- content of element nc:PersonGivenName -->,
   "nc:PersonMiddleName": [
     <!-- content of 1st element nc:PersonGivenName -->,
-    <!-- content of 1st element nc:PersonGivenName -->
+    <!-- content of 2nd element nc:PersonGivenName -->
   ],
   "nc:PersonSurName": <!-- content of element nc:PersonSurName -->,
   "nc:personNameCommentText": "copied"
@@ -504,16 +504,9 @@ is equivalent to:
 }
 ```
 
-A repeatable element is converted into a JSON object with an array
+A repeated element is converted into a JSON object with an array
 value. The array contains one JSON object for the content of each
 element instance, in their order of appearance.
-
-The schema is consulted to determine whether an element is
-*repeatable*, and not the the XML to see if the element is actually
-*repeated*. If a repeatable element appears at all, it gets an
-array. This consistency makes life easier for developers who are
-writing code to access the data as plain JSON. (It has no effect on
-developers accessing the data as JSON-LD or RDF.)
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
@@ -528,10 +521,9 @@ two `Parent` elements:
 
 Therefore it is up to the developer to ensure that these two elements
 have the same meaning in the IEP.  If the meaning depends on the
-difference in element ordering, then this guidance does not apply, and
-the developer is on his own.  However, if the meaning does depend on
-this difference, then the IEPD design is bad; it conflicts with the
-[NIEM Conceptual
+difference in element ordering, then the guidance in this document
+does not apply, and the developer is on his own.  However, in that
+case, the IEPD design is bad, conflicting with the [NIEM Conceptual
 Model](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_5).
 
 ### Element with Complex Content and Attributes
@@ -587,7 +579,8 @@ between attribute and child element names, because of the [camel-case
 rule](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_10.8.1).
 For an IEP that is not NIEM conforming, it is possible to have an
 attribute and a child element with the same name. This document has no
-guidance for that case; developers are on their own.
+guidance for sucn non-conforming IEPs; developers are on their
+own.
 
 ### Element with Simple Content and Attributes
 
@@ -707,7 +700,8 @@ For example, the representation for
 Observe that in JSON-LD, an object containing a pair with the `@id`
 key may be a node reference or an identified node. The difference is
 whether the object contains any *other* pairs; i.e. exactly one pair
-is a reference, two or more pairs is an identified node.
+is a reference, two or more pairs is an identified node that may be
+referenced.
 
 Observe also that the `xsi:nil` attribute is useful only for schema validation, and does
 not appear in the JSON-LD representation.
@@ -879,7 +873,7 @@ element is converted to
 That will work when processed as plain JSON.  When processed as
 JSON-LD, the resulting IRIs in the expanded form are
 reasonable. However, because the `srsName` attribute does not have a
-namespace in GML, it will be dropped from the expanded form. That will
+namespace in GML, it will be dropped by the JSON-LD processor. That will
 probably cause difficulties for the JSON-LD and RDF consumer use
 cases.
 
@@ -907,7 +901,8 @@ element. The resulting JSON-LD would be
 
 This approach produces a plausible IRI for the `srsName` attribute in
 the expanded JSON-LD, and so should work for the JSON-LD and RDF
-consumer use cases.
+consumer use cases. This is the approach followed for the [full
+example](#full-example-json.)
 
 #### Represent the external content with GeoJSON
 
@@ -944,15 +939,19 @@ Like this?
 
 ```json
 "geo:LocationGeospatialPoint": {
-  "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral",
-  "@value":
-  "<gml:Point gml:id="PT01" srsName="urn:ogc:def:crs:EPSG::4326"> <gml:pos>51.835 -0.417</gml:pos> </gml:Point>"
+  "rdf:value": {
+    "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral",
+    "@value":
+      "<gml:Point gml:id="PT01" srsName="urn:ogc:def:crs:EPSG::4326">
+      <gml:pos>51.835 -0.417</gml:pos> </gml:Point>"
+  }
 }
 ```
 
 <!-- Probably not exactly like that. geo:LocationGeospatialPoint is a NIEM
 object type; it can have an @structures:id. It should become a node object. But
 formulated this way, it's a value object (an RDF literal).  -->
+<!-- Fixed, I think. --@iamdrscott-->
 
 ## Implementing Translators
 
