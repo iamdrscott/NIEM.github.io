@@ -421,6 +421,9 @@ described above:
   "j:Charge": {
       ...
   }
+  "j:JusticeMetadata": {
+      ...
+  }
 }
 ```
 
@@ -431,7 +434,8 @@ Note that there is only one pair for each child
 element *name*, no matter how many times that element appears in the
 content.  It is now time to discuss...
 
-### Repeatable Elements
+
+### Repeated Elements
 
 <!-- TODO: convert this from *repeatable* to *actually repeated* -->
 
@@ -462,51 +466,11 @@ Since `nc:PersonMiddleName` is repeated, it is represented using the key
 }
 ```
 
-We see that occurrences of element `nc:PersonMiddleName` are bundled together as
-an array, and that array is the value for key `nc:PersonMiddleName`.
-
-**JSON-LD note: arrays**: In JSON-LD, a single object is equivalent to an array that contains a 
-single object. So, the two following pieces of JSON-LD are equivalent:
-
-```javascript
-{
-  "ns:key": "value"
-}
-```
-
-is equivalent to:
-
-```javascript
-{
-  "ns:key" : [ 
-    "value" 
-  ]
-}
-```
-
-**JSON-LD note: order of keys**: In JSON-LD, the order of keys within an object
-are *not* considered significant. This means that the two following pieces of
-JSON-LD are equivalent:
-
-```javascript
-{ 
-  "ns:key1": "value",
-  "ns:key2": "value"
-}
-```
-
-is equivalent to:
-
-```javascript
-{ 
-  "ns:key2": "value",
-  "ns:key1": "value"
-}
-```
-
-A repeated element is converted into a JSON object with an array
-value. The array contains one JSON object for the content of each
-element instance, in their order of appearance.
+We see that occurrences of element `nc:PersonMiddleName` are bundled
+together as an array, and that array is the value for key
+`nc:PersonMiddleName`. A repeated element is converted into a JSON
+object with an array value. The array contains one JSON object for the
+content of each element instance, in their order of appearance.
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
@@ -958,6 +922,74 @@ formulated this way, it's a value object (an RDF literal).  -->
 Discuss an **easy button** transfrom from NIEM XML to JSON-LD, treating input
 like a *canned query* with very little optionality, transforming to JSON-LD
 using XSLT3's JSON capability.
+
+## JSON-LD guidance
+
+### JSON-LD as plain JSON
+
+A software developer may wish to work with JSON-LD data instances with
+vanilla JSON tools, which aren't JSON-LD aware. Although developers
+are encouraged to use JSON-LD tools, using vanilla JSON tools is
+straightforward, although there are caveats. These include:
+
+1. The meaning of JSON-LD is defined its **context**.
+1. JSON-LD expanded syntax may be much more *regular*, simplifying software that uses data.
+1. The order of keys in an object is not significant, so don't rely on it.
+1. Arrays may only appear as needed.
+
+Vanilla JSON processes that use JSON-LD are encouraged to carefully
+control the organization and JSON-LD context of the data. This may be
+done by using the expansion, compaction, and framing algorithms
+provided as part of the JSON-LD specification products.
+
+### Order of keys not significant {#json-key-order-not-significant}
+
+In JSON and JSON-LD, the order of keys within an object are *not* considered
+significant. This means that the two following pieces of JSON-LD are
+equivalent:
+
+```javascript
+{ 
+  "ns:key1": "value",
+  "ns:key2": "value"
+}
+```
+
+is equivalent to:
+
+```javascript
+{ 
+  "ns:key2": "value",
+  "ns:key1": "value"
+}
+```
+
+The order of keys within a JSON-LD instance may be determined by the
+writer of the JSON-LD, or may be handled automatically by a JSON-LD library.
+
+### Arrays may be omitted {#json-ld-array-optional}
+
+: In JSON-LD, a single object is equivalent to an array that contains a 
+single object. So, the two following pieces of JSON-LD are equivalent:
+
+```javascript
+{
+  "ns:key": "value"
+}
+```
+
+is equivalent to:
+
+```javascript
+{
+  "ns:key" : [ 
+    "value" 
+  ]
+}
+```
+
+A system that is generating JSON-LD could optionally generate the
+second form instead of the first. 
 
 ## Additional guidance
 
