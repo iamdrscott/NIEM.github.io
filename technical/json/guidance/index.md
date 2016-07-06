@@ -919,9 +919,9 @@ formulated this way, it's a value object (an RDF literal).  -->
 
 ## Implementing Translators
 
-Discuss an **easy button** transfrom from NIEM XML to JSON-LD, treating input
-like a *canned query* with very little optionality, transforming to JSON-LD
-using XSLT3's JSON capability.
+> TODO: Discuss an **easy button** transfrom from NIEM XML to JSON-LD, treating input
+> like a *canned query* with very little optionality, transforming to JSON-LD
+> using XSLT3's JSON capability. &mdash;@webb
 
 ## JSON-LD guidance
 
