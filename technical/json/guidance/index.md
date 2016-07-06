@@ -470,7 +470,7 @@ We see that occurrences of element `nc:PersonMiddleName` are bundled
 together as an array, and that array is the value for key
 `nc:PersonMiddleName`. A repeated element is converted into a JSON
 object with an array value. The array contains one JSON object for the
-content of each element instance, in their order of appearance.
+content of each element instance. Note that order of data within an array should not be considered significant, as described [below](#json-ld-as-json).
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
@@ -925,7 +925,7 @@ formulated this way, it's a value object (an RDF literal).  -->
 
 ## JSON-LD guidance
 
-### JSON-LD as plain JSON
+### JSON-LD as plain JSON {#json-ld-as-json}
 
 A software developer may wish to work with JSON-LD data instances with
 vanilla JSON tools, which aren't JSON-LD aware. Although developers
@@ -936,6 +936,8 @@ straightforward, although there are caveats. These include:
 1. JSON-LD expanded syntax may be much more *regular*, simplifying software that uses data.
 1. The order of keys in an object is not significant, so don't rely on it.
 1. Arrays may only appear as needed.
+1. Order of data inside an array should not be considered signficant (as described by [*Building JSON-LD APIs: Best Practices*, &ldquo;Best Practice 6: Assume arrays are unordered&rdquo;](http://json-ld.org/spec/latest/json-ld-api-best-practices/#unordered-values))
+
 
 Vanilla JSON processes that use JSON-LD are encouraged to carefully
 control the organization and JSON-LD context of the data. This may be
