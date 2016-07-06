@@ -4,6 +4,7 @@ layout: specification
 ndr-href: https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/NIEM-NDR-3.0-2014-07-31.html
 json-ld-api-href: http://www.w3.org/TR/json-ld-api/
 json-ld-href: http://www.w3.org/TR/json-ld/
+json-ld-name: "JSON-LD 1.0"
 ---
 
 ## Contents
@@ -71,7 +72,7 @@ information exchange package) into a semantically-equivalent JSON serialization.
 
 Sections not written yet. #1 talks about claiming conformance for JSON
 data by demonstrating a lossless round-trip translation to a
-conforming NIEM IEP. #2 is about the easy-butten translator
+conforming NIEM IEP. #2 is about the easy-button translator
 implementation using XPath 3
 
 * A description of NIEM conformance for JSON serialization of IEPs
@@ -194,7 +195,7 @@ described by
 [JSON-LD 1.0 Processing Algorithms and API, Section 2.2, &ldquo;Compaction&rdquo;]({{page.json-ld-api-href}}#compaction).
 
 Similarly, the JSON-LD specifications define a process of expanding JSON-LD into
-a canonical long-form, which inlines context information, and expands IRIs into
+a canonical long-form, which in-lines context information, and expands IRIs into
 their long forms. This is described by
 [JSON-LD 1.0 Processing Algorithms and API, Section 2.1, &ldquo;Expansion&rdquo;]({{page.json-ld-api-href}}#expansion). The
 expanded form of the above data follows:
@@ -232,7 +233,7 @@ All three of these methods are legitimate ways to access NIEM JSON-LD data:
    RDF/XML or Turtle syntax.
 
 The guidance in the next major section is intended to produce a
-JSON-LD serialization that is convienent for all three of these
+JSON-LD serialization that is convenient for all three of these
 consumer use cases.
    
 ## JSON-LD representation of NIEM XML {#xml-to-json}
@@ -274,7 +275,7 @@ Rules for what goes in this object follow below.
 
 NIEM uses XML namespaces to distinguish components with similar names, to
 identify the authorities responsible for managing a set of XML schema
-components, and to organize data defintions among NIEM Core, domains, IEPD
+components, and to organize data definitions among NIEM Core, domains, IEPD
 extensions, etc. Every NIEM IEP has namespace declarations for its content. To
 uniquely specify a NIEM element, attribute, or schema component, its local name
 must be combined with the namespace associated with its namespace prefix.
@@ -457,8 +458,8 @@ Since `nc:PersonMiddleName` is repeated, it is represented using the key
 "nc:PersonName": {
   "nc:PersonGivenName": <!-- content of element nc:PersonGivenName -->,
   "nc:PersonMiddleName": [
-    <!-- content of 1st element nc:PersonGivenName -->,
-    <!-- content of 2nd element nc:PersonGivenName -->
+    <!-- content of first element nc:PersonGivenName -->,
+    <!-- content of second element nc:PersonGivenName -->
   ],
   "nc:PersonSurName": <!-- content of element nc:PersonSurName -->,
   "nc:personNameCommentText": "copied"
@@ -542,7 +543,7 @@ between attribute and child element names, because of the [camel-case
 rule](https://reference.niem.gov/niem/specification/naming-and-design-rules/3.0/niem-ndr-3.0.html#section_10.8.1).
 For an IEP that is not NIEM conforming, it is possible to have an
 attribute and a child element with the same name. This document has no
-guidance for sucn non-conforming IEPs; developers are on their
+guidance for such non-conforming IEPs; developers are on their
 own.
 
 ### Element with Simple Content and Attributes
@@ -586,7 +587,7 @@ representation is
 
 ### Element with Numeric or Boolean Content
 
-<!-- easy button walkthrough is stringifying or booleans.
+<!-- easy button walkthrough is stringifying or Boolean.
     typing is an advanced topic -->
 
 When the IEPD schema defines a numeric type for a simple element, the
@@ -605,47 +606,108 @@ example, the representations of `nc:MeasureDecimalValue` and
   }
 ```
 
-### Elements with Empty or Nilled Content
+### Elements with empty and nilled content
 
-<!-- TODO: null probably isn't the right way to represent something without a
-simple value. Just omit the rdf:value. null means the same thing. "" is right out. -->
+There are three situations in an XML instance where an element may have empty
+content:
 
-The value of an empty element such as `<E/>` is represented by the
-empty string, and the value of an explicitly nilled element such as
-`<E xsi:nil="true"/>` is represented by JSON's `null`, like this:
+1. The element has no simple content, and any element content is optional. For
+   example, its type may be a complex type with complex content, which has no
+   simple value, and its element children may have `minOccurs="0"`.
+1. The element is defined to have simple or complex content, but the simple
+   content is nilled using `xsi:nil="true"`.
+1. The element has simple content, but that simple content is the empty string.
 
+Cases 1 and 2 are represented the same way in JSON-LD: There is no value
+associated with the element. Take this XML example (case 1):
+
+```xml
+<nc:Person/>
 ```
-  "E" : { "rdf:value" : "" } 
-  "E" : { "rdf:value" : null }
+
+&hellip;or the equivalent (case 1):
+
+```xml
+<nc:Person></nc:Person>
 ```
 
-However, reference elements, which have the
-`structures:ref` attribute in addition to `xsi:nil`, receive special
-handing, described below.
+Both of these omit any content. To be a valid XML instance, the schema for this
+must either define `nc:PersonType` (the type defined by NIEM for element
+`nc:Person`) with no child elements, or with child elements that have
+`minOccurs="0"`. A similar instance may use `xsi:nil` (case 2):
+
+```xml
+<nc:Person xsi:nil="true"/>
+```
+
+This XML instance may be valid with mandatory element children, as long as
+`nillable="true"` is set for the element. The JSON for all of these is the same:
+
+```javascript
+{ 
+  "nc:Person" : { }
+}
+```
+
+This expresses that `nc:Person` is a node object, but does not assert any other
+properties.
+
+An element carrying an empty string (case 2) is represented differently. In NIEM, element
+`nc:PersonGivenName` is defined to have simple content based on `xs:string`. So,
+if that element is empty, it represents the empty string. The XML instance (case 2):
+
+```xml
+<nc:PersonGivenName></nc:PersonGivenName>
+```
+
+&hellip;and the equivalent XML (case 2):
+
+```xml
+<nc:PersonGivenName/>
+```
+
+&hellip;are both carrying the empty string as children of
+`nc:PersonGivenName`. This may be represented with the JSON:
+
+```javascript
+{ 
+  "nc:PersonGivenName" : { "rdf:value" : "" }
+}
+```
 
 ### ID Attributes
 
-The `structures:id` attribute and any other ID attribute is
-represented by the JSON-LD reserved key `@id`. The value of the `@id`
-pair is formed by creating an IRI with the ID
-attribute's value. The resulting string is a _Node Identifier_
-in JSON-LD. For example, the
-representation for `<nc:Person structures:id="P01">` is
+NIEM defines the attribute `structures:id` to carry `ID` values. `structures:id`
+is the only `ID`-typed attribute allowed in NIEM-conformant content (except for
+externally-defined content). An `ID` attribute in XML defines a unique
+document-relative unique identifier. There can only be one element in an XML
+instance with a given `ID` value, but an `ID` value can be used across multiple
+XML documents.
 
-```javascript
-{ "nc:Person" : {
-    "@id" : "P01" },
-    <!-- child elements go here --> }
-  }
+The NIEM-defined `structures:id` attribute is represented by the JSON-LD
+reserved key `@id`. The value for `@id` is the value of `structures:id`. For
+example, the XML:
+
+```xml
+<nc:Person structures:id="P01">
+  <!-- child elements go here -->
+</nc:Person>
 ```
 
-The json-ld processor generates a relative IRI that is only valid for
-that instance of the document. You can also use a prefix that is part of a domain that
-you control, even if the resource is not available publicly on the web.
+&hellip;is represented by the JSON-LD:
 
-<!-- ids are document relative. processors may convert to absolute IRIs using a
-base URI for the document. base uris may be explicitly assigned in a context
-using "@base" -->
+```javascript
+{ 
+  "nc:Person" : {
+    "@id" : "P01",
+    <!-- JSON for child elements goes here -->
+  }
+}
+```
+
+The JSON-LD processor will process `@id` values against a base IRI. This might
+be automatically generated by a system (for example, the JSON-LD Playground uses
+a base IRI of `http://json-ld.org/playground/`). The base IRI may also be set by `@base` within an `@context`, as described by [{{page.json-ld-name}}, Section 6.1, &ldquo;Base IRI&rdquo;]({{page.json-ld-href}}#base-iri).
 
 ### References and IDREF attributes
 
@@ -726,7 +788,7 @@ representation of `j:DriverLicense` is
 
 > It seems like it would be more straightforward for j:DriverLicenseCardIdentification
 > to have an @id of "A1234567" here. Not sure what jurisdiction issued this
-> space alien's DriverLicense, but if this were a referencable link we could
+> space alien's DriverLicense, but if this were a reference-able link we could
 > go there and find out other details, such as when it was issued, when it expires
 > and if there are any restrictions. That would get rid of two blank nodes and
 > the nc:IdentificationID node. &mdash;@leilatite
@@ -992,7 +1054,7 @@ second form instead of the first.
 > Suggestions for the developer who wishes to use NIEM definitions in
 > a JSON object design. Guidance for developers who wish to map
 > existing JSON objects to NIEM XML may be provided at a later
-> date. My envisoned restructuring of the document ends at this
+> date. My envisioned restructuring of the document ends at this
 > point. Everything that follows is old or leftover material; might
 > need to be inserted somewhere above.
 > &mdash;@iamdrscott
@@ -1194,7 +1256,7 @@ and with Javascript code like
              ) ? (
                     repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]
              ) : (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName”]
+                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"]
              ); 
 ```
 
