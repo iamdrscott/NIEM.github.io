@@ -42,4 +42,5 @@ ACTION ITEMS
   custom mapping. Make the JSONLD full example correspond to this)
 * Section 3: Show a *simple* XSLT transforming XML to JSON-LD.
 * Appendix A: Edit references to follow standard format
+* Add a deeper dive on aliasing terms and rdf:value
 
