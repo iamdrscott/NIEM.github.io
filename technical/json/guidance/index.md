@@ -18,6 +18,7 @@ json-ld-href: http://www.w3.org/TR/json-ld/
 * Scott Renner <sar@mitre.org>, @iamdrscott
 * Webb Roberts <webb.roberts@gtri.gatech.edu>, @webb
 * Leila Tite <leila.tite@hennepin.us>, @leilatite
+* Tom Carlson <tom@tomcarlsonconsulting.com>
 
 ## Abstract
 {:.no_toc}
@@ -437,8 +438,6 @@ content.  It is now time to discuss...
 
 ### Repeated Elements
 
-<!-- TODO: convert this from *repeatable* to *actually repeated* -->
-
 In the [full example XML IEP](#full-example-xml), The element
 `nc:PersonMiddleName` is repeated within `nc:PersonName`:
 
@@ -754,7 +753,7 @@ child element.
 
 ### Metadata
 
-<!-- do an easy button transform for metadata. put an "oh well" for relationshipMetadata --> 
+<!-- TODO: do an easy button transform for metadata. put an "oh well" for relationshipMetadata --> 
 
 > We are still working on figuring out how to represent metadata in JSON-LD.
 > The NDR says to hang metadata on RDF statements, but it is not clear
@@ -882,7 +881,7 @@ solution, the adapter element is converted to
 "geo:LocationGeospatialPoint": {
   "@context": {
     "geometry": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#geometry",
-    "type": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#type",   
+    "type": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#type",
     "coordinates": "https://datatracker.ietf.org/doc/draft-ietf-geojson/#coordinates"
   },
   "geometry": {
@@ -899,23 +898,18 @@ desirable, of course.
 
 #### Represent the external content as an XMLLiteral blob
 
-Like this?
-
-```json
+```javascript
 "geo:LocationGeospatialPoint": {
   "rdf:value": {
-    "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral",
+    "@type": "rdf:XMLLiteral",
     "@value":
-      "<gml:Point gml:id="PT01" srsName="urn:ogc:def:crs:EPSG::4326">
-      <gml:pos>51.835 -0.417</gml:pos> </gml:Point>"
+      "<gml:Point gml:id=\"PT01\" 
+                  srsName=\"urn:ogc:def:crs:EPSG::4326\">
+           <gml:pos>51.835 -0.417</gml:pos>
+       </gml:Point>"
   }
 }
 ```
-
-<!-- Probably not exactly like that. geo:LocationGeospatialPoint is a NIEM
-object type; it can have an @structures:id. It should become a node object. But
-formulated this way, it's a value object (an RDF literal).  -->
-<!-- Fixed, I think. --@iamdrscott-->
 
 ## Implementing Translators
 
@@ -971,7 +965,7 @@ writer of the JSON-LD, or may be handled automatically by a JSON-LD library.
 
 ### Arrays may be omitted {#json-ld-array-optional}
 
-: In JSON-LD, a single object is equivalent to an array that contains a 
+In JSON-LD, a single object is equivalent to an array that contains a 
 single object. So, the two following pieces of JSON-LD are equivalent:
 
 ```javascript
@@ -1083,49 +1077,49 @@ If you have existing JSON data that you want to expose as JSON-LD, you can
 do that by supplying a separate JSON-LD context for it. This provides an
 upgrade path for developers who need to be able to continue to support regular JSON.
 You do this by adding a HTTP Link Header as specified by [RFC5988](#bibrfc5988) 
-using the **http://www.w3.org/ns/json-ld#context** link relation.  
+using the `http://www.w3.org/ns/json-ld#context` link relation.
 
-This JSON example uses non-NIEM terms for the components of the name of a Person:
-
-```javascript
-{
-  "givenName": "Peter",
-  "additionalName": [ "Death",  "Bredon" ],
-  "familyName": "Wimsey"
-}
-```
-
-A separate context file named person.jsonld specifies aliases for those JSON tags to their 
-corresponding NIEM elements:
+A separate context file could be served at URL `http://example.com/contexts/iepd-context.jsonld`:
 
 ```javascript
 {
   "@context": {
     "nc": "http://release.niem.gov/niem/niem-core/3.0/#",
-    "PersonGivenName" : "http://release.niem.gov/niem/niem-core/3.0/#PersonGivenName",
-    "PersonMiddleName" : "http://release.niem.gov/niem/niem-core/3.0/#PersonMiddleName",
-    "PersonSurName" : "http://release.niem.gov/niem/niem-core/3.0/#PersonSurName",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    ...
     "givenName" : "nc:PersonGivenName",
     "additionalName" : "nc:PersonMiddleName",
-    "familyName" : "nc:PersonSurName"
-    }
+    "familyName" : "nc:PersonSurName",
+    "text" : "rdf:value"
+  }
 }
 ```
 
 A link header can be added to the plain JSON response that includes:
 
 ```
-Link: <http://example.com/contexts/person.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"
+Link: <http://example.com/contexts/iepd-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"
 ```
 
-The JSON-LD processor prepends the context to the JSON data and expands the original plain JSON into JSON-LD.
-The expanded version contains the NIEM terms for the original values. The context defined them as aliases.
+The JSON-LD processor prepends the context to the JSON data and interprets the
+original plain JSON as JSON-LD. These definitions can then be used by a JSON
+data instance, without the instance explicitly referring to the context. Since
+the context defined the short terms as aliases to full NIEM terms, expanding
+this JSON data will convert it to use the full NIEM terms.
 
-A benefit of separating the context from the JSON is that if you're storing the JSON data in a database you 
-can add new terms to the JSON-LD context without having to replace the inline context in all the data that has already been
+```javascript
+{
+  "givenName": { "text" : "Peter" },
+  "additionalName": [ { "text": "Death"}, 
+                      { "text" : "Bredon" } ],
+  "familyName": { "text" : "Wimsey" }
+}
+```
+
+A benefit of separating the context from the JSON is that if you're storing the
+JSON data in a database you can add new terms to the JSON-LD context without
+having to replace the inline context in all the data that has already been
 stored.
-
-<!-- This approach isn't perfect, because it doesn't convert the values to rdf:value nodes. Should we mention that? -->
 
 See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
 of how to implement this.
@@ -1298,212 +1292,4 @@ The following JSON data is a compact JSON-LD form of the full example from [Sect
 ```javascript
 {% include_relative full-example.jsonld %}
 ```
-
-
-## Selected NIEM Elements from Examples
-These are Schema Subset Generation Tool (SSGT) links to some of the model elements used in the examples. The SSGT is one of the NIEM Model Tools available at [https://tools.niem.gov/niemtools/home.iepd](https://tools.niem.gov/niemtools/home.iepd)
-
-* <a name="Charge">[NIEM j:Charge object in the SSGT](https://tools.niem.gov/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-b7)</a>
-* <a name="MeasureDecimalValue">[NIEM
-  nc:MeasureDecimalValue object in the
-  SSGT](https://tools.niem.gov/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-93i)</a>
-* <a name="Person">[NIEM nc:Person object in the SSGT](https://niem.gtri.gatech.edu/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-115)</a>
-* <a name="PersonType">[NIEM nc:PersonType in the SSGT](https://tools.niem.gov/niemtools/ssgt/SSGT-GetType.iepd?typeKey=ny-6y)</a>
-* <a name="PersonChargeAssociation">[NIEM j:PersonChargeAssociation object in the SSGT](https://tools.niem.gov/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-4qf)
-* <a name="PersonGivenName">[NIEM nc:PersonGivenName object in the SSGT](https://niem.gtri.gatech.edu/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-13s)</a>
-* <a name="PersonMiddleName">[NIEM nc:PersonMiddleName object in the SSGT](https://niem.gtri.gatech.edu/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-152)</a>
-* <a name="PersonName">[NIEM nc:PersonName object in the SSGT](https://niem.gtri.gatech.edu/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-158)</a>
-* <a name="personNameCommentText">[NIEM nc:personNameCommentText object in the SSGT](https://niem.gtri.gatech.edu/niemtools/ssgt/SSGT-GetProperty.iepd?propertyKey=ny-2wz)</a>
-
-
-## Old material; may still need a new home
-
-> _I cut this out of the introduction because it no longer fits the
-> document flow. Some of these points appear in the new introduction,
-> some do not.
-> &mdash;@iamdrscott
-
-Using JSON-LD as a vocabulary for JSON exchanges supports the mapping of NIEM
-XML/XSD to [RDF-Concepts](#bibrdfconcepts) because JSON-LD is capable of serializing any RDF
-graph or dataset. The goal is to maintain the structure
-and component names of NIEM exchanges. This takes advantage of the semantic precision
-possible with NIEM and increases the likelihood that the exchange will be understood
-in the same way between exchange partners. NIEM describes information exchanges formatted as
-Information Exchange Package Documentation [IEPD](https://reference.niem.gov/niem/specification/model-package-description/3.0/model-package-description-3.0.html#section_3.2.2).  
-An Information Exchange Package (IEP) is an information message payload serialized as XML or JSON-LD and transmitted in some way, for example over a communications network.
-
-NIEM uses XML _qualified names_, which consist of a _namespace name_ and a _local part_. 
-JSON-LD uses a _context_, which maps an IRI to a _local term_ within the document.
-Using a similar construct for the JSON-LD makes the JSON more easily readable.
-
-> This intro should describe the overarching approach: 
-> 
->   * Use JSON-LD as a JSON vocabularly
->   * Support NIEM's XML/XSD-to-RDF mapping
->   * Maintain structure and component names of NIEM exchanges
->   * Map XSD QNames to URIs & use JSON-LD to shorten URIs back to QNames (*sigh*)
-> 
-> &mdash;@webb
-
-### Audience
-
-The intended audience includes:
-
-* JSON developers who want to leverage NIEM as a data model to take advantage of
-  the precise meaning of NIEM data elements.
-* NIEM developers who want to serialize NIEM XML into JSON for display,
-  interchange, or storage purposes.
-
-Please provide feedback on this document by entering an issue at [https://github.com/NIEM/NIEM.github.io/issues](https://github.com/NIEM/NIEM.github.io/issues) or sending email to [niem-comments@lists.gatech.edu](mailto:niem-comments@lists.gatech.edu).
-
-### Resource Description Framework (RDF)
-
-NIEM is based on RDF. To ensure good mapping between JSON-LD and NIEM, some RDF
-concepts are more visible in the proposed JSON-LD than might be expected.
-
-RDF has the concept of two types of objects, a node object (an RDF resource with
-an IRI, or a blank node), and a value object (an RDF literal). Under the
-[NIEM Naming and Design Rules (NDR) Section 5]({{href_ndr}}#section_5.3), which deals with RDF,
-NIEM XML is mapped like this:
-
-* the value of an element is a node object
-* the value of an attribute is a value object
-* the simple content of an element is a value object
-
-For consistency in both development and interpretation, this document recommends
-fully expanded JSON-LD, as per the examples provided.
-
-### Non-Normative
-
-This document provides guidance. It is not a specification of normative
-rules. Community feedback to this document may result in a full specification at
-a later date. Adherence to the guidance in this document does not confer "NIEM
-conformance" on the resulting work.
-
-### Contract-First Development
-
-This document focuses on contract-first development, where the data to be
-exchanged is agreed upon before development. This document is designed to help
-JSON developers create JSON-LD that maps directly to NIEM XML. Future guidance may
-later be provided regarding mapping more arbitrary forms of JSON to NIEM XML
-objects.
-
-### No Attempt to Replicate Schema
-
-This document focuses on creating JSON instance documents, not in replicating
-NIEM entirely in JSON-LD. JSON-LD's *context* object can be used to enforce data
-types and object structure, if desired, but this document does not attempt to
-replicate NIEM objects in this manner.
-
-### Basic Structure
-
-> NOTE: I think this needs to describe the overall approach to existing NIEM
-> users, instead of explaining NIEM to JSON people. There's no reason for us to
-> be reiterating ISO 11179 and use of namespaces at this stage. &mdash;@webb
-
-> Start with a simple example of XML-to-JSON-LD &mdash;@webb
-
-### JSON-LD: JSON for linking data
-
-This approach to NIEM uses JSON-LD, described at [JSON-LD.org](http://json-ld.org):
-
-> JSON-LD is a lightweight Linked Data format. It is easy for humans to read and
-> write. It is based on the already successful JSON format and provides a way to
-> help JSON data interoperate at Web-scale. JSON-LD is an ideal data format for
-> programming environments, REST Web services, and unstructured databases such
-> as CouchDB and MongoDB.
-
-JSON-LD has features that make it useful for exchanging NIEM data:
-
-* It maintains the RDF data model, which is the basis for NIEM schemas and NIEM
-  data.
-* It provides an intuitive way to handling namespace prefixes.
-* It provides a consistent mapping for NIEM data that will scale across a large
-  number of information exchanges.
-
-> Others? &mdash;@webb
-
-> It would be good to say something more about the importance and benefits of Linked Data,
-> but is this the right place? 
->
-> * browsing and discovery approach to finding information
-> * distributed SPARQL queries
-> * Linked Open Data. There are more and more Open Data initiatives, which allow data to be
->   cross-referenced on the web.
-> * Ability to reinterpret JSON without @context as JSON-LD using some context without modifying
->   the JSON instance. [as seen here](http://www.w3.org/TR/json-ld/#interpreting-json-as-json-ld)
->
-> &mdash;@leilatite
-
-### Mapping XML qualified names to JSON-LD IDs
-
-JSON-LD object IDs and properties IRIs, much like URIs. NIEM schemas use XML
-namespaces; this results in the names of NIEM elements, attributes, and types
-being qualified names. A qualified name consists of:
-
-1. a **namespace name**: a URI that defines a namespace; a *namespace* is defined by [XML Namespaces](http://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-QName) as:
-
-   > <q>An XML namespace is a collection of names, identified by a URI reference [RFC2396], 
-   > which are used in XML documents as element types and attribute names.</q>
-   
-1. a **local part**: a simple string that provides the local part of the qualified name.
-
-[The NIEM NDR]({{page.ndr-href}}#section_5.6.1) maps qualified names
-to URIs as:
-
-* If namespace name ends with #: concatenate(namespace name, local part)
-* Otherwise: concatenate(namespace name, #, local part)
-
-This provides a way to use the names of NIEM elements and attributes as JSON-LD
-properties. It also provides IDs for NIEM types. 
-
-### Naming Conventions
-
-Adhere to existing NIEM names for elements and attributes. Follow
-[ISO-11179-4](#bibiso111794) and [ISO-11179-5](#bibiso111795) when creating new
-names. The benefits of the naming convention in terms of consistency and
-contextual meaning outweigh dealing with slightly longer names than may be
-desired.
-
-In particular, do not substitute NIEM names with names from
-[schema.org](#bibschema). For example, do not substitute schema:familyName for
-nc:PersonSurName.
-
-### Code Tables
-
-Currently, we know of no mechanism for enforcing enumerated values in
-JSON-LD. Code tables should be represented by strings, with the understanding
-that the validity of individual codes in instances will not be validated in any
-way when represented as JSON-LD.
-
-> Does
-> [Metadata Vocabulary for Tabular Data](http://w3c.github.io/csvw/metadata/#json-ld-context)
-> take care of this? See also
-> [JSON-LD Dialect](http://w3c.github.io/csvw/metadata/#json-ld-dialect). &mdash@TommySezSoWhat
-
-#### RDF {#thisisanote}
-
-The [NIEM conceptual model]({{page.ndr-href}}#section_5) is based on
-the RDF data model described in [RDF-Concepts](#bibrdfconcepts). NIEM
-defines a mapping from the XML components in IEPs and IEPD schemas to
-equivalent RDF triples. As of this writing, there is no automated
-translator for that mapping.
-
-Another reason for choosing JSON-LD is that it is a concrete RDF
-syntax as described in [RDF-Concepts](#bibrdfconcepts). There is a
-mapping between JSON-LD objects and equivalent RDF tuples. This
-mapping is implemented in open-source translators. This means that the
-JSON-LD serialization of an IEP can be automatically translated to
-Turtle or RDF/XML and processed in that form.
-
-This establishes two paths from a NIEM IEP to RDF
-
-* Direct, using the mapping in the [NDR]({{page.ndr-href}}#section_5.6)
-* Indirect, first following the guidance in this document to produce a
-  JSON-LD serialization, then converting that JSON-LD to RDF
-
-The NTAC intent is that the RDF created by both paths will be
-consistent. This may entail future revisions to the
-[NDR]({{page.ndr-href}}#section_5.6).
-
 

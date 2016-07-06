@@ -30,6 +30,16 @@ monospace text. Type ellipsis as:
   * Within justified text, use &hellip;.
   * Within monspace text, use three periods (...).
 
+ACTION ITEMS
 
-
+* Section 2.10: Fix text about NULL / empty / missing simple content: "null" probably isn't
+  the right way to represent something without a simple value. Just omit the
+  rdf:value. null means the same thing. "" is right out
+* Section 2.15: Fix metadata: do an easy button transform for metadata. put an "oh well" for
+  relationshipMetadata
+* Section 2.16: Move in-depth adapter text into its own section in "advanced topics" ... (move
+  most of this to an an advanced topics section. this section just does a simple
+  custom mapping. Make the JSONLD full example correspond to this)
+* Section 3: Show a *simple* XSLT transforming XML to JSON-LD.
+* Appendix A: Edit references to follow standard format
 
