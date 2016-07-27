@@ -4,7 +4,6 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - technical/json/guidance/Makefile
-  - technical/json/guidance/README.txt
   - technical/json/guidance/resources.txt
   - technical/json/guidance/sample-iepd
   - vendor/Font-Awesome/src
