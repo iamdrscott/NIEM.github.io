@@ -89,9 +89,11 @@ later date.
 
 ### Overview
 
-This document describes NIEM's methodology for creating consistent,
-interoperable JSON messages that are based on NIEM-conformant XML schemas. Core
-aspects of this guidance are:
+This document is one step in the NTAC technical roadmap for JSON,
+[Using JSON with NIEM](../using_json_with_niem.pdf).  It describes
+NIEM's methodology for creating consistent, interoperable JSON
+messages that are based on NIEM-conformant XML schemas. Core aspects
+of this guidance are:
 
 1. The guidance describes JSON messages based on NIEM Schemas.
 1. The JSON messages are expressed as JSON-LD, a scalable JSON framework for
@@ -119,11 +121,11 @@ representation, will not need to understand much about RDF. The few RDF concepts
 this document explicitly requires are explained without requiring deep
 understanding of the underlying RDF concepts.
 
-The
-[NIEM NDR Section 5, &ldquo;The NIEM conceptual model&rdquo;]({{page.ndr-href}}#section_5)
-describes the conceptual model of NIEM, and provides a mapping between
-NIEM-conformant XML schemas and XML instance documents. This section is the
-basis for much of what appears in this document. For example:
+The [NIEM NDR Section 5, &ldquo;The NIEM conceptual
+model&rdquo;]({{page.ndr-href}}#section_5) describes the conceptual
+model of NIEM, and provides a mapping between NIEM-conformant XML
+schemas and XML instance documents, and RDF. This section is the basis
+for much of what appears in this document. For example:
 
 * [Section 5.6.1, &ldquo;Resource IRIs for XML Schema components and information items&rdquo;]({{page.ndr-href}}#section_5.6.1)
   describes how to find an internationalized resource identifier (IRI) for a
@@ -151,11 +153,11 @@ JSON. JSON-LD provides a lightweight mechanism that allows data to be linked
 across websites. The syntax is easy for humans to read and easy for machines to
 parse and generate.
 
-There are several reasons that JSON-LD is a good fit for NIEM. One reason for
-choosing JSON-LD is context mechanism, which allows names in JSON-LD to look
-like XML qualified names (QNames). As described [above](#niem-and-rdf), the NDR
-defines how to translate element QNames to JSON-LD IRIs. These IRIs can be
-represented in a short form using a JSON-LD context. 
+One reason for choosing JSON-LD is its context mechanism, which allows
+IRIs in JSON-LD to look like XML qualified names (QNames). As
+described [above](#niem-and-rdf), the NDR defines how to translate
+element QNames to IRIs. These IRIs can be represented in a
+short form using a JSON-LD context.
 
 Take, for example, the following JSON data:
 
@@ -165,16 +167,9 @@ Take, for example, the following JSON data:
 }
 ```
 
-With JSON-LD, the long IRI can be shortened. Applying the following JSON-LD
-context&hellip;
-
-```javascript
-{
-   "nc" : "http://release.niem.gov/niem/niem-core/3.0/#"
-}
-```
-
-&hellip;yields a compact form of the same data:
+The key in this JSON object is the IRI defined by NIEM for the
+`nc:quantityUnitText` attribute.  Using the JSON-LD context mechanism,
+that IRI can be compacted. as follows:
 
 ```javascript
 {
@@ -184,6 +179,15 @@ context&hellip;
   "nc:quantityUnitText": "dozen"
 }
 ```
+
+The benefits of a JSON-LD representation are apparent. The context
+object preserves the information in the XML namespace
+declarations. The JSON object key is a familiar NIEM QName. That QName
+can be converted into the full IRI by an expansion algorithm defined
+for JSON-LD by [JSON-LD 1.0 Processing Algorithms and API, Section
+2.1, &ldquo;Expansion&rdquo;]({{page.json-ld-api-href}}#expansion).
+
+<!-- @iamdrscott: I think there is too much detail this material for the introduction
 
 A JSON-LD context can be applied to JSON-LD several ways, including by serving it
 as part of an HTTP response, or by reference from within a JSON-LD data
@@ -218,24 +222,37 @@ form makes explicit what is implicit in JSON-LD's short form. For example, in
 short form, a key in an object may have a single value or may an array of
 values. In expanded form there will always be an array of values, even if the
 array contains only a single value.
+-->
 
-Finally, [JSON-LD is a concrete RDF
-syntax](https://www.w3.org/TR/json-ld/#relationship-to-rdf), like
+A second reason for choosing JSON-LD is that [JSON-LD is a concrete
+RDF syntax](https://www.w3.org/TR/json-ld/#relationship-to-rdf), like
 RDF/XML or Turtle. This means that NIEM JSON-LD data may be processed
-using RDF techniques, such as SPARQL queries.
+using RDF techniques, such as SPARQL queries. This also means that
+there are now two methods of generating RDF from NIEM-conforming XML
+documents and schemas: the first defined in [NIEM NDR Section
+5]({{page.ndr-href}}#section_5), the second described by this
+guidance. The NTAC's intention is that the two methods produce
+consistent RDF; realizing this intention may require future changes to
+the NDR, this guidance, or both.
 
-All three of these methods are legitimate ways to access NIEM JSON-LD data:
+Based on the above, all three of these methods are legitimate ways to
+access NIEM JSON-LD data:
 
 1. A developer can work with the data as if it is plain JSON, without worrying
    about details of JSON-LD.
-1. A developer can use JSON-LD tools to transform the data prior to processing,
+1. A developer can use JSON-LD tools as part of the data processing,
    including using compaction against a known context, expansion, flattening, or framing.
 1. A developer can process the data as RDF, possibly first converting it to
    RDF/XML or Turtle syntax.
 
-The guidance in the next major section is intended to produce a
-JSON-LD serialization that is convenient for all three of these
-consumer use cases.
+The guidance in the next major section is intended to describe a
+JSON-LD serialization of NIEM-conforming XML that is easy to generate,
+and convenient to process, for all three of these consumer use
+cases. Certain advanced concerns for that serialization may be found
+in [section 4](#advanced-json).  This document does not attempt to teach best
+practices for JSON or JSON-LD; for that, the reader may turn to
+[http://json-ld.org/spec/latest/json-ld-api-best-practices](http://json-ld.org/spec/latest/json-ld-api-best-practices),
+or other similar resources.
    
 ## JSON-LD representation of NIEM XML {#xml-to-json}
 
@@ -980,7 +997,7 @@ desirable, of course.
 > like a *canned query* with very little optionality, transforming to JSON-LD
 > using XSLT3's JSON capability. &mdash;@webb
 
-## JSON-LD guidance
+## Advanced Concerns for JSON-LD Serialization {#advanced-json}
 
 ### JSON-LD as plain JSON {#json-ld-as-json}
 

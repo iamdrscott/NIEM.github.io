@@ -63,24 +63,29 @@ monospace text. Type ellipsis as:
    Using NIEM with JSON
     1. Status: Add sentence stating this is a working draft, subject to future
        changes and additions
-       * Scott already did this, will push it.
+       * DONE
     2. Section 1: Add reference/link to Using JSON with NIEM paper
-       * ok
-    3. Section 1.4: Add reference in to JSON best practices:
+       * DONE
+    3. Section 1.4: Add reference in to JSON-LD best practices:
       [http://json-ld.org/spec/latest/json-ld-api-best-practices](http://json-ld.org/spec/latest/json-ld-api-best-practices)
        * Highlight the Best Practices in section 4. Also say that we're not trying
          to teach JSON or JSON-LD.
        * Point 1.4 into Section 4 for JSON/LD details.
+       * ALL DONE
     4. Section 1.4: Add a few sentences describing XML to JSON-LD, same RDF graph
       as in NDR
         * Scott's notes: say something about our intent: RDF from NDR should be same
           as JSON-LD guidance. May entail deltas to NDR when required.
+        * ^ DONE
         * "if you follow our JSON guidance you get RDF"
+        * ^ DONE
         * (Section 1.3 paragraph 1: say ~ "the NDR tells how to convert NIEM XML to
           RDF" & we're using that to generate corresponding LD.
+        * ^ALREADY DONE? BY LAST SENTENCE IN PP #1
         * (last sentence of Section 1.3 paragraph 1: add ~ "JSON-LD is an RDF
           representation, and what we're doing is building RDF from the NDR using
           JSON-LD as the syntax")
+        * ^ ALREADY DONE? BY LAST SENTENCE IN PP #1
     5. Section 2.5: Add text stating this applies to repeated elements with
       complex content as well as simple content
        * ok
