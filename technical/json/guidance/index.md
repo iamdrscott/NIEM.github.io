@@ -41,8 +41,9 @@ This guidance is non-normative. It discusses possible NIEM conformance
 rules for JSON data, but it does not establish any specification for
 such conformance.
 
-Readers are invited to provide feedback on this document by entering
-an issue at
+This document is a working draft; revisions and additions are
+expected. Readers are invited to provide feedback on this document by
+entering an issue at
 [https://github.com/NIEM/NIEM.github.io/issues](https://github.com/NIEM/NIEM.github.io/issues)
 or sending email to <niem-comments@lists.gatech.edu>.
 
