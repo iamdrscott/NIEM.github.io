@@ -99,10 +99,12 @@ monospace text. Type ellipsis as:
     7. Section 2.11: Add statement that there must be at least one other pair (or
       @id will be interpreted as a reference rather than an identified node as
       described in section 2.12)
+       * DONE, I THINK
        * section 4 should have an additional subsection with an example of the
          merging different things with the same IDs. the XML ID/REF mechanism
-         isn't how JSON-LD thinks about IDs.
-       * section 2.11 should reference that.
+         isn't how JSON-LD thinks about IDs. 
+      * section 2.11 should reference that.
+      * ^ FOR LATER
     8. Section 2.14: Remove comments
         * DONE
     9. Section 5: Remove subsections except 5.1 and 5.4; renumber 5.4 to 5.2

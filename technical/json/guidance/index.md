@@ -610,7 +610,7 @@ The `nc:Date` element has simple content and no attributes.  Its JSON-LD
 representation is
 
 ```javascript
-  "nc:Date" :"2006-05-04"
+  "nc:Date" :"1893-05-04"
 ```
 
 With no attributes, there is no need for the `rdf:value` key, and so it
@@ -673,9 +673,7 @@ This XML instance may be valid with mandatory element children, as long as
 `nillable="true"` is set for the element. The JSON for all of these is the same:
 
 ```javascript
-{ 
-  "nc:Person" : { }
-}
+"nc:Person" : { }
 ```
 
 This expresses that `nc:Person` is a node object, but does not assert any other
@@ -699,12 +697,10 @@ if that element is empty, it represents the empty string. The XML instance (case
 `nc:PersonGivenName`. This may be represented with the JSON:
 
 ```javascript
-{ 
-  "nc:PersonGivenName" : "" }
-}
+"nc:PersonGivenName" : ""
 ```
 
-### ID Attributes
+### ID Attributes {structures-id}
 
 NIEM defines the attribute `structures:id` to carry ID
 values. `structures:id` is the only ID-typed attribute allowed in
@@ -720,18 +716,29 @@ example, the XML:
 
 ```xml
 <nc:Person structures:id="P01">
-  <!-- child elements go here -->
+  <nc:PersonBirthDate>
+    <nc:Date>1893-05-04</nc:Date>
+  </nc:PersonBirthDate>
+  <nc:PersonName nc:personNameCommentText="copied">
+    ...
+  </nc:PersonName>
+  <exch:PersonFictionalCharacterIndicator>true</exch:PersonFictionalCharacterIndicator>
 </nc:Person>
 ```
 
 &hellip;is represented by the JSON-LD:
 
 ```javascript
-{ 
-  "nc:Person" : {
-    "@id" : "P01",
-    <!-- JSON for child elements goes here -->
-  }
+"nc:Person" : {
+  "@id" : "P01",
+  "nc:PersonBirthDate": {
+    "nc:Date": "1893-05-04"
+  },
+  "nc:PersonName": {
+    "nc:personNameCommentText" : "copied",
+    ...
+  },
+  "exch:PersonFictionalCharacterIndicator": true
 }
 ```
 
@@ -741,25 +748,30 @@ a base IRI of `http://json-ld.org/playground/`). The base IRI may also be set by
 
 ### References and IDREF attributes
 
-The value of a `structures:ref` attribute and any other IDREF attribute is
-converted into a node reference to the @id of the corresponding JSON-LD resource.  
-For example, the representation for
+The value of a `structures:ref` attribute and any other IDREF
+attribute is converted into a reference using the @id of the
+corresponding JSON-LD node. For example, the representation for
 `<nc:RoleOfPerson structures:ref="P01" xsi:nil="true"/>` is
 
 ```javascript
-{ "nc:RoleOfPerson" : {
-    "@id" : "P01" }
+"nc:RoleOfPerson" : {
+  "@id" : "P01"
 }
 ```
 
-Observe that in JSON-LD, an object containing a pair with the `@id`
-key may be a node reference or an identified node. The difference is
-whether the object contains any *other* pairs; i.e. exactly one pair
-is a reference, two or more pairs is an identified node that may be
-referenced.
+The representation of a reference element has no content from the
+element value, either complex or simple; that is, the only content is
+the `"@id":"idref"` pair and zero or more attributes.  In NIEM JSON-LD
+data created according to this guidance, this will be true of every
+object representing a reference element. In addition, there must be
+exactly one object containing the `"@id":"value"` pair that does have
+child elements or simple element content.  That will be the object
+representing the element with the `structures:id` attribute, as
+described [above](#structures-id). These constraints are not part of
+JSON-LD; it is created by this guidance.
 
-Observe also that the `xsi:nil` attribute is useful only for schema validation, and does
-not appear in the JSON-LD representation.
+Observe that the `xsi:nil` attribute, which is useful only for schema
+validation, does not appear in the JSON-LD representation.
 
 ### Abstract Elements and Substitution Groups
 
@@ -780,11 +792,11 @@ place. Abstract elements do not appear at all.  For example,
 becomes
 
 ```javascript
-    "nc:Person" : {
-        "nc:PersonBirthDate" : {
-            "nc:Date"  : "2006-05-04"
-        }
+"nc:Person" : {
+    "nc:PersonBirthDate" : {
+        "nc:Date"  : "1893-05-04"
     }
+}
 ```
 
 ### Augmentations
@@ -798,15 +810,15 @@ so they do not appear in the JSON representation. So, for example, the
 representation of `j:DriverLicense` is
 
 ```javascript
-  "j:DriverLicense" : {
-    "j:DriverLicenseCardIdentification" : {
-        "nc:IdentificationID" : "A1234567" 
-    },
-    "nc:ItemLengthMeasure" : {
-        "nc:MeasureDecimalValue" : 9.7,
-        "nc:LengthUnitCode" : "CMT" 
-    }
+"j:DriverLicense" : {
+  "j:DriverLicenseCardIdentification" : {
+      "nc:IdentificationID" : "A1234567" 
+  },
+  "nc:ItemLengthMeasure" : {
+      "nc:MeasureDecimalValue" : 9.7,
+      "nc:LengthUnitCode" : "CMT" 
   }
+}
 ```
 
 The other kind of augmentation element is an element declared in the
