@@ -104,11 +104,12 @@ monospace text. Type ellipsis as:
          isn't how JSON-LD thinks about IDs.
        * section 2.11 should reference that.
     8. Section 2.14: Remove comments
-        * ok
+        * DONE
     9. Section 5: Remove subsections except 5.1 and 5.4; renumber 5.4 to 5.2
        * 5.2 is covered by 2.16. delete 5.2; it's covered.
        * 5.3 is a placeholder. move to section 4 & fill it out.
        * prune 5.5, resurrect later if needed.
+       * ALL DONE
 
 ## NDR Changes
 

@@ -794,8 +794,6 @@ becomes
 
 ### Augmentations
 
-> &mdash;@webb Is this now fixed to match what we do in [the NDR]({{page.ndr-href}}#section_5.6.5.6). &mdash;@leilatite
-
 NIEM has two kinds of augmentation elements. The most common is a
 container element that is derived from `AugmentationType` and has a
 name ending in `Augmentation`; for example, `LicenseAugmentation` in
@@ -818,17 +816,6 @@ representation of `j:DriverLicense` is
     }
   }
 ```
-
-> It seems like it would be more straightforward for j:DriverLicenseCardIdentification
-> to have an @id of "A1234567" here. Not sure what jurisdiction issued this
-> space alien's DriverLicense, but if this were a reference-able link we could
-> go there and find out other details, such as when it was issued, when it expires
-> and if there are any restrictions. That would get rid of two blank nodes and
-> the nc:IdentificationID node. &mdash;@leilatite
-
-> Ah, but we don't know what jurisdiction issued this license.  All we
-> have is the number on the card.  So I don't think an @id would work
-> in this case. &mdash;@iamdrscott
 
 The other kind of augmentation element is an element declared in the
 substitution group of an `AugmentationPoint`.  For example, the IEPD
@@ -1084,15 +1071,6 @@ second form instead of the first.
 
 ## Additional guidance
 
-> Suggestions for the developer who wishes to use NIEM definitions in
-> a JSON object design. Guidance for developers who wish to map
-> existing JSON objects to NIEM XML may be provided at a later
-> date. My envisioned restructuring of the document ends at this
-> point. Everything that follows is old or leftover material; might
-> need to be inserted somewhere above.
-> &mdash;@iamdrscott
-
-
 ### Expressing types
 
 The `@type` keyword is used to associate a type with a node. 
@@ -1153,21 +1131,8 @@ how to express typed values.
 
 <!-- `xsi:type` may be mapped to LD. optionally: (1) drop it (2) map over to "@type" -->
 
-### External XML content
-
-> We should list options here, including:
->
->   1. You know your XML, come up with a good JSON-LD mapping for it.
->   2. use rdf:XMLLiteral to carry over the XML as a blob
->   3. Use some other JSON syntax for that content, like GeoJSON {How would an alien JSON vocabulary be used within a JSON-LD instance? Maybe this breaks JSON-LD.}
-
-### Guidelines for reading LD 
-
-> Clarify that you probably want to code against the *expanded* LD form of data,
-> not compacted, so that code will consistently get at everything whether or not
-> it's been encoded the way you expected. &mdash;@webb
-
 ### Linking contexts via HTTP headers
+
 If you have existing JSON data that you want to expose as JSON-LD, you can
 do that by supplying a separate JSON-LD context for it. This provides an
 upgrade path for developers who need to be able to continue to support regular JSON.
@@ -1219,123 +1184,6 @@ stored.
 See [JSON-LD Specification Section 6.8, &ldquo;Interpreting JSON as JSON-LD&rdquo;]({{page.json-ld-href}}#interpreting-json-as-json-ld) for more information and examples
 of how to implement this.
 
-### Code samples 
-
-Discuss issues related to processing JSON-LD as plain JSON.
-
-Compacted form:
-
-```javascript
-"j:ChargeDescriptionText": {
-  "rdf:value": "Wild Driving"
-}
-```
-
-Expanded form:
-
-```javascript
-"http://release.niem.gov/niem/domains/jxdm/5.1/#ChargeDescriptionText": [
-  {
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
-      {
-        "@value": "Wild Driving"
-      }
-    ]
-  }
-]
-```
-
-Ideas:
-
-1. Write a helper function that tests for arrays, @value vs simple values, etc.
-1. Write your JSON very consistently to make it easy to write processing code.
-    (e.g., Be really consistent in any XML to JSON transformation)
-
-
-
-
-#### Repeatable Elements
-The IEPD definition describes whether elements can be repeated. These elements
-go into a JSON array, even if there is only one element.
-For example, in Perl,
-given a reference to the JSON object for `nc:Person`, the code to
-access the contents of the first `PersonMiddleName` element would be
-
-```perl
-$r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
-```
-
-In Javascript, if we had a reference to
-the JSON object for `nc:Person`, we would access the contents of the
-first `PersonMiddleName` element with
-
-```javascript
-repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]; 
-```
-
-If the JSON serialization used an array only for elements that are actually *repeated*,
-then it would be necessary to test whether the array is there, with Perl code like:
-
-```perl
-ref($r->{"nc:PersonName"}->{"nc:PersonMiddleName"}) eq 'HASH' ?
-    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"} :
-    $r->{"nc:PersonName"}->{"nc:PersonMiddleName"}->[0]
-```
-
-and with Javascript code like
-
-```javascript
-(typeof repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"] === 'object'
-             ) ? (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"][0]
-             ) : (
-                    repeated_elements_niem_json["nc:PersonName"]["nc:PersonMiddleName"]
-             ); 
-```
-
-
-and that would get ugly pretty fast.
-
-#### Element with Simple Content
-
-For simple content with no attributes, this
-simple content could be represented by 
-
-```javascript
-  "nc:Date" : "2006-05-04"
-```
-
-instead of
-
-```javascript
-  "nc:Date" : {
-    "rdf:value" : "2006-05-04"
-  }
-```
-
-but then when developers wanted to access the simple content, they
-would have to always test whether the value was a string or an object,
-writing Perl
-
-```perl
-ref($r->{"nc:Date"}) eq 'HASH' ?
-    $r->{"nc:Date"}->{"rdf:value"} :
-    $r->{"nc:Date"}
-```
-
-or writing Javascript
-
-```javascript
-(typeof normal_simple_content_json["nc:Date"] ==='object'
-             ) ? (
-                    niem_simple_content_json["nc:Date"]["rdf:value"]
-             ) : (
-                    normal_simple_content_json["nc:Date"]
-             ); 
-```
-
-As with repeatable elements, life is easier for the developers with
-a consistent representation for all simple elements.
 
 ## Roadmap for future work
 
