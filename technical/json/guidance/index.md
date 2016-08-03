@@ -630,13 +630,9 @@ example, the representations of `nc:MeasureDecimalValue` and
 `exch:PersonFictionalCharacterIndicator` are:
 
 ```javascript
-  "nc:MeasureDecimalValue" : {
-    {"rdf:value" : 9.7 }
-  }
+  "nc:MeasureDecimalValue" : 9.7 
 
-  "exch:PersonFictionalCharacterIndicator" : {
-    {"rdf:value" : true }
-  }
+  "exch:PersonFictionalCharacterIndicator" : true 
 ```
 
 ### Elements with empty and nilled content
@@ -704,18 +700,19 @@ if that element is empty, it represents the empty string. The XML instance (case
 
 ```javascript
 { 
-  "nc:PersonGivenName" : { "rdf:value" : "" }
+  "nc:PersonGivenName" : "" }
 }
 ```
 
 ### ID Attributes
 
-NIEM defines the attribute `structures:id` to carry `ID` values. `structures:id`
-is the only `ID`-typed attribute allowed in NIEM-conformant content (except for
-externally-defined content). An `ID` attribute in XML defines a unique
-document-relative unique identifier. There can only be one element in an XML
-instance with a given `ID` value, but an `ID` value can be used across multiple
-XML documents.
+NIEM defines the attribute `structures:id` to carry ID
+values. `structures:id` is the only ID-typed attribute allowed in
+NIEM-conformant content (except for externally-defined content). An
+ID attribute in XML defines a unique document-relative unique
+identifier: An ID value may appear in at most one element within a
+single XML document; the same ID value may appear in any number of
+different documents.
 
 The NIEM-defined `structures:id` attribute is represented by the JSON-LD
 reserved key `@id`. The value for `@id` is the value of `structures:id`. For
@@ -785,9 +782,7 @@ becomes
 ```javascript
     "nc:Person" : {
         "nc:PersonBirthDate" : {
-            "nc:Date" : {
-                "rdf:value" : "2006-05-04"
-            }
+            "nc:Date"  : "2006-05-04"
         }
     }
 ```
@@ -805,14 +800,11 @@ representation of `j:DriverLicense` is
 ```javascript
   "j:DriverLicense" : {
     "j:DriverLicenseCardIdentification" : {
-        "nc:IdentificationID" : {
-            "rdf:value" : "A1234567" }
+        "nc:IdentificationID" : "A1234567" 
     },
     "nc:ItemLengthMeasure" : {
-        "nc:MeasureDecimalValue" : {
-            "rdf:value" : 9.7 },
-        "nc:LengthUnitCode" : {
-            "rdf:value" : "CMT" }
+        "nc:MeasureDecimalValue" : 9.7,
+        "nc:LengthUnitCode" : "CMT" 
     }
   }
 ```
@@ -861,7 +853,7 @@ something like example from [stack overflow](http://stackoverflow.com/questions/
   "subject": "j:Charge",
   "predicate": "structures:metadata",
   "object": { "@id": "j:JusticeMetadata" },
-  "j:CriminalInformationIndicator": {"rdf:value" : true }
+  "j:CriminalInformationIndicator": true 
 }
 ```
 
@@ -908,9 +900,7 @@ element is converted to
   "gml:Point": {
     "@id": "PT01",
     "srsName": "urn:ogc:def:crs:EPSG::4326",
-    "gml:pos": {
-      "rdf:value": "51.835 -0.417"
-    }
+    "gml:pos": "51.835 -0.417"
   }
 }
 ```
@@ -937,9 +927,7 @@ element. The resulting JSON-LD would be
   "gml:Point": {
     "@id": "PT01",
     "srsName": "urn:ogc:def:crs:EPSG::4326",
-    "gml:pos": {
-      "rdf:value": "51.835 -0.417"
-    }
+    "gml:pos": "51.835 -0.417"
   }
 }
 ```
@@ -982,14 +970,12 @@ desirable, of course.
 
 ```javascript
 "geo:LocationGeospatialPoint": {
-  "rdf:value": {
-    "@type": "rdf:XMLLiteral",
-    "@value":
-      "<gml:Point gml:id=\"PT01\" 
-                  srsName=\"urn:ogc:def:crs:EPSG::4326\">
-           <gml:pos>51.835 -0.417</gml:pos>
-       </gml:Point>"
-  }
+  "@type": "rdf:XMLLiteral",
+  "@value":
+    "<gml:Point gml:id=\"PT01\" 
+                srsName=\"urn:ogc:def:crs:EPSG::4326\">
+         <gml:pos>51.835 -0.417</gml:pos>
+     </gml:Point>"
 }
 ```
 
