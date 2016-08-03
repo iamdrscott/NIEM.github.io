@@ -493,6 +493,10 @@ JSON object for the content of each element instance. Note that order
 of data within an array should not be considered significant, as
 described [below](#json-ld-as-json).
 
+Consumers of NIEM JSON-LD data must be aware that the value of a
+repeatable element may be an array (if the element is in fact
+repeated), or an object (if it is not), and code accordingly.
+
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
 
@@ -579,32 +583,40 @@ attributes. Its JSON representation is
   }
 ```
 
-The element's simple content is represented by the pair with the key
-`rdf:value`.  That content requires a pair with *some* special key;
-the representation can't be `{ "nc:PersonGivenName" : "Peter" }`,
-because then there is no place to put the attributes.  The special key
-could have a magic syntax, such as `"."`, but that would only work for
-plain JSON consumers. To process the data as JSON-LD or RDF, the key
-must be a term mapped to an IRI. This guidance chooses `rdf:value` for
-the special key, because that makes the JSON-LD representation
-consistent with [NDR content of an
+The element's simple content can't be represented by
+`{"nc:PersonGivenName" : "Peter" }`, because then there is no place to
+put the attributes. Instead, the representation must be an object,
+with ordinary keys for the attributes and a special key for the simple
+content.  That special key could have a magic syntax, such as `"."`,
+but this would only work for plain JSON consumers; to process the data
+as JSON-LD or RDF, the key must be a term mapped to an IRI.
+
+According to the [RDF
+Primer (2004)](https://www.w3.org/TR/2004/REC-rdf-primer-20040210/#rdfvalue),
+`rdf:value` is customarily used in this situation where a property has
+one main value and one or more additional values providing context
+that qualifies the main value. Therefore, this
+guidance chooses `rdf:value` for the special key. This choice also makes
+the JSON-LD representation consistent with [NDR content of an
 element]({{page.ndr-href}}#section_5.6.5.2), which specifies that
-non-empty simple values are mapped in this way, while still working
-for plain JSON consumers.
+non-empty simple values are mapped in this way.
 
 Obviously this will break if an element in the IEP has `rdf:value` as
 an attribute.  Fortunately, there is no good reason to do that in a NIEM IEP. 
 
-### Element with Simple Content
+### Element with Simple Content and No Attributes
 
 The `nc:Date` element has simple content and no attributes.  Its JSON-LD
 representation is
 
 ```javascript
-  "nc:Date" : {
-    "rdf:value" : "2006-05-04"
-  }
+  "nc:Date" :"2006-05-04"
 ```
+
+With no attributes, there is no need for the `rdf:value` key, and so it
+is not used. Consumers of NIEM JSON-LD data must be aware that the
+value of a simple element may be an object (if the element has
+attributes), or a value (if it does not), and code accordingly.
 
 ### Element with Numeric or Boolean Content
 
@@ -1346,10 +1358,13 @@ Provide helper functions to check for repeatable elements.
 ## References
 
 * <a name="bibjsonld"></a>JSON-LD: Manu Sporny, Gregg Kellogg, Markus Lanthaler, Editors. 16 January 2014. W3C Recommendation. &ldquo;[A JSON-based Serialization for Linked Data]( https://www.w3.org/TR/json-ld/).&rdquo; Available from [https://www.w3.org/TR/json-ld/](https://www.w3.org/TR/json-ld/)
-* <a name="bibrdfconcepts"></a>RDF-Concepts 
+* <a name="bibrdfconcepts"></a>RDF-Concepts: 
 Richard Cyganiak, David Wood, Markus Lanthaler, Editors. 09 January 2014. W3C Proposed Recommendation.
 &ldquo;[RDF 1.1 Concepts and Abstract Syntax](https://www.w3.org/TR/2014/PR-rdf11-concepts-20140109/).&rdquo;  Available from 
 [http://www.w3.org/TR/rdf11-concepts/](http://www.w3.org/TR/rdf11-concepts/)
+* <a name="rdfprimer2004"></a>RDF Primer: Frank Minola, Eric Miller,
+  Brian McBride, Editors. 10 February 2004. W3C Recommendation. 10
+  February 2004. &ldquo;[RDF Primer](https://www.w3.org/TR/2004/REC-rdf-primer-20040210/#rdfvalue).&rdquo;
 * <a name="bibrfc4627"></a>RFC4627: D. Crockford. &ldquo;[The application/json Media Type for JavaScript Object Notation (JSON) (RFC 4627)](http://www.ietf.org/rfc/rfc4627.txt).&rdquo; July 2006. RFC. Available from  [http://www.ietf.org/rfc/rfc4627.txt](http://www.ietf.org/rfc/rfc4627.txt)
 * <a name="bibrfc5988"></a>RFC5988: M. Nottingham. [Web Linking](http://www.ietf.org/rfc/rfc5988.txt). October 2010. Internet RFC 5988. Available from: [http://www.ietf.org/rfc/rfc5988.txt](http://www.ietf.org/rfc/rfc5988.txt)
 

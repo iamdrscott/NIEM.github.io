@@ -92,8 +92,10 @@ monospace text. Type ellipsis as:
     6. Section 2.8: Explain rationale for `rdf:value` (for case of simple
       content with no attributes), borrowing from (to be deleted) 5.5.2; present
       alternative of no `rdf:value`, explain tradeoff
-       * ok
-       * Make `rdf:value` as-needed, optional, and caveat emptor to the reader.
+       * ^ NOT NEEDED GIVEN NEXT CHANGE
+       * Make `rdf:value` as-needed, optional, and caveat emptor to
+         the reader. Put same caveat into section 2.5
+       * ^ DONE
     7. Section 2.11: Add statement that there must be at least one other pair (or
       @id will be interpreted as a reference rather than an identified node as
       described in section 2.12)
