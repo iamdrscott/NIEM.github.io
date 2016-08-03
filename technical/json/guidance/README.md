@@ -88,7 +88,7 @@ monospace text. Type ellipsis as:
         * ^ ALREADY DONE? BY LAST SENTENCE IN PP #1
     5. Section 2.5: Add text stating this applies to repeated elements with
       complex content as well as simple content
-       * ok
+       * DONE
     6. Section 2.8: Explain rationale for `rdf:value` (for case of simple
       content with no attributes), borrowing from (to be deleted) 5.5.2; present
       alternative of no `rdf:value`, explain tradeoff

@@ -487,8 +487,11 @@ Since `nc:PersonMiddleName` is repeated, it is represented using the key
 We see that occurrences of element `nc:PersonMiddleName` are bundled
 together as an array, and that array is the value for key
 `nc:PersonMiddleName`. A repeated element is converted into a JSON
-object with an array value. The array contains one JSON object for the
-content of each element instance. Note that order of data within an array should not be considered significant, as described [below](#json-ld-as-json).
+object with an array value. (This is done for elements with simple
+content as well as the complex elements shown.) The array contains one
+JSON object for the content of each element instance. Note that order
+of data within an array should not be considered significant, as
+described [below](#json-ld-as-json).
 
 Observe that with this guidance, the same JSON is produced for these
 two `Parent` elements:
